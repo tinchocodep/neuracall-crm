@@ -1,5 +1,7 @@
 # 🧠 Neuracall CRM
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tinchocodep/neuracall-crm)
+
 Sistema de gestión de relaciones con clientes (CRM) diseñado específicamente para **Neuracall**, una agencia de software especializada en inteligencia artificial.
 
 ![Neuracall](./public/neuracall-logo.svg)
