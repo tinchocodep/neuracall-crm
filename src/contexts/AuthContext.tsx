@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     console.log('Loading profile for user:', session.user.email);
 
                     // CAMINO RÁPIDO para tu usuario (bypass de base de datos)
-                    if (session.user.email === 'tinchocabrera100@gmail.com' || session.user.email === 'demo@neuracall.com') {
+                    if (session.user.email === 'tinchocabrera100@gmail.com') {
                         console.log('⚡ FAST TRACK: User is admin, skipping DB queries completely');
 
                         const profile = {

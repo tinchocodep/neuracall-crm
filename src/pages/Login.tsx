@@ -31,10 +31,6 @@ export default function Login() {
         }
     };
 
-    const fillDemoCredentials = () => {
-        setEmail('demo_v3@neuracall.com');
-        setPassword('demo123456');
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center relative overflow-hidden">
@@ -64,25 +60,6 @@ export default function Login() {
                 </div>
 
                 <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700/50">
-                    {/* Demo credentials banner */}
-                    <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-                        <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="text-sm text-blue-300 font-medium mb-2">Credenciales de Demo</p>
-                                <div className="space-y-1 text-xs text-slate-300">
-                                    <p><span className="text-slate-400">Email:</span> demo_v3@neuracall.com</p>
-                                    <p><span className="text-slate-400">Contraseña:</span> demo123456</p>
-                                </div>
-                                <button
-                                    onClick={fillDemoCredentials}
-                                    className="mt-3 text-xs text-blue-400 hover:text-blue-300 transition-colors underline"
-                                >
-                                    Usar credenciales demo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
