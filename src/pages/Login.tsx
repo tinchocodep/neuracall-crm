@@ -49,13 +49,13 @@ export default function Login() {
             <div className="w-full max-w-md relative z-10 px-4">
                 {/* Logo y Header */}
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-blue-600/20 backdrop-blur-xl mb-6 shadow-2xl shadow-blue-500/30 relative group p-4 border border-blue-400/30">
+                    <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-white/10 backdrop-blur-xl mb-6 shadow-2xl shadow-blue-500/20 relative group p-4 border border-white/20">
                         <img
                             src={import.meta.env.VITE_LOGO_URL || '/neuracall-logo.png'}
                             alt={`${import.meta.env.VITE_APP_NAME || 'Neuracall CRM'} Logo`}
-                            className="w-full h-full object-contain relative z-10 drop-shadow-lg"
+                            className="w-full h-full object-contain relative z-10 drop-shadow-lg mix-blend-multiply filter contrast-125 brightness-110"
                         />
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/30 to-cyan-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/30 to-cyan-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl mix-blend-overlay"></div>
                     </div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-3">
                         {import.meta.env.VITE_APP_NAME || 'Neuracall CRM'}

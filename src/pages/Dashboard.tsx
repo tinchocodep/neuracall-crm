@@ -229,18 +229,18 @@ export function Dashboard() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="lg:col-span-2 p-8 rounded-3xl bg-card border border-border/50 shadow-sm"
+                        className="lg:col-span-2 p-8 rounded-3xl bg-slate-900/50 backdrop-blur-xl border border-slate-800/50 shadow-sm"
                     >
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h3 className="text-xl font-bold text-foreground">Crecimiento Neuracall</h3>
-                                <p className="text-sm text-muted-foreground mt-1">Ingresos y proyectos activos</p>
+                                <h3 className="text-xl font-bold text-white">Crecimiento Neuracall</h3>
+                                <p className="text-sm text-slate-400 mt-1">Ingresos y proyectos activos</p>
                             </div>
                             <div className="flex gap-4">
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 text-sm text-slate-400">
                                     <span className="w-3 h-3 rounded-full bg-blue-500 shadow shadow-blue-500/50" /> Ingresos
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 text-sm text-slate-400">
                                     <span className="w-3 h-3 rounded-full bg-cyan-500 shadow shadow-cyan-500/50" /> Proyectos
                                 </div>
                             </div>
@@ -259,23 +259,27 @@ export function Dashboard() {
                                             <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.4} />
                                     <XAxis
                                         dataKey="name"
-                                        stroke="hsl(var(--muted-foreground))"
+                                        stroke="#64748b"
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
                                         dy={10}
                                     />
                                     <YAxis
-                                        stroke="hsl(var(--muted-foreground))"
+                                        stroke="#64748b"
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
                                         tickFormatter={(value) => `$${value / 1000}k`}
                                     />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 2 }} />
+                                    <Tooltip
+                                        content={<CustomTooltip />}
+                                        cursor={{ stroke: '#334155', strokeWidth: 2 }}
+                                        wrapperStyle={{ outline: 'none' }}
+                                    />
                                     <Area
                                         type="monotone"
                                         dataKey="revenue"
@@ -302,36 +306,36 @@ export function Dashboard() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7 }}
-                        className="p-8 rounded-3xl bg-card border border-border/50 shadow-sm flex flex-col"
+                        className="p-8 rounded-3xl bg-slate-900/50 backdrop-blur-xl border border-slate-800/50 shadow-sm flex flex-col"
                     >
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-foreground">Actividad Reciente</h3>
-                            <button className="text-muted-foreground hover:text-primary transition-colors">
+                            <h3 className="text-xl font-bold text-white">Actividad Reciente</h3>
+                            <button className="text-slate-400 hover:text-blue-400 transition-colors">
                                 <MoreHorizontal size={20} />
                             </button>
                         </div>
 
-                        <div className="space-y-6 flex-1 overflow-auto pr-2">
+                        <div className="space-y-6 flex-1 overflow-auto pr-2 custom-scrollbar">
                             {recentActivity.map((item, i) => (
                                 <div key={i} className="flex gap-4 items-start group">
                                     <div className="relative">
                                         <div className={cn(
                                             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-all group-hover:scale-110",
                                             item.bg,
-                                            "border-border/50 group-hover:border-primary/50"
+                                            "border-slate-800 group-hover:border-blue-500/30"
                                         )}>
                                             <item.icon size={16} className={cn(item.color, "transition-colors")} />
                                         </div>
                                         {i !== recentActivity.length - 1 && (
-                                            <div className="absolute top-10 left-1/2 -translate-x-1/2 w-px h-full bg-border/50 -z-10" />
+                                            <div className="absolute top-10 left-1/2 -translate-x-1/2 w-px h-full bg-slate-800/50 -z-10" />
                                         )}
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-baseline w-full mb-1">
-                                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                                            <span className="text-[10px] text-muted-foreground font-medium">{item.time}</span>
+                                            <p className="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">{item.title}</p>
+                                            <span className="text-[10px] text-slate-500 font-medium">{item.time}</span>
                                         </div>
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                        <p className="text-xs text-slate-400 line-clamp-2">
                                             {item.description}
                                         </p>
                                     </div>
@@ -339,7 +343,7 @@ export function Dashboard() {
                             ))}
                         </div>
 
-                        <button className="w-full mt-6 py-3 rounded-xl border border-border/50 text-sm font-medium hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
+                        <button className="w-full mt-6 py-3 rounded-xl border border-slate-700/50 text-sm font-medium hover:bg-slate-800 transition-colors text-slate-400 hover:text-white">
                             Ver toda la actividad
                         </button>
                     </motion.div>

@@ -113,9 +113,9 @@ export default function Clients() {
 
             {/* Content Area */}
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-40 bg-slate-800/50 rounded-2xl animate-pulse" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                        <div key={i} className="h-40 bg-slate-800/50 rounded-xl animate-pulse" />
                     ))}
                 </div>
             ) : filteredClients.length === 0 ? (
@@ -129,62 +129,63 @@ export default function Clients() {
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredClients.map((client) => (
                         <div
                             key={client.id}
-                            className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/50 hover:border-blue-500/30 rounded-2xl p-5 transition-all hover:bg-slate-800/60 group cursor-pointer relative overflow-hidden"
+                            className="bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 rounded-xl p-4 transition-all hover:bg-slate-800/80 hover:shadow-lg hover:shadow-blue-900/10 group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full"
                             onClick={() => console.log('Open client', client.id)}
                         >
-                            <div className="absolute top-0 right-0 p-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white">
-                                    <MoreHorizontal size={20} />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white">
+                                    <MoreHorizontal size={18} />
                                 </button>
                             </div>
 
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-blue-400 font-bold text-lg border border-white/5 shrink-0">
-                                    {client.first_name?.[0]}{client.last_name?.[0]}
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-lg text-slate-100 group-hover:text-blue-400 transition-colors">
-                                        {client.first_name} {client.last_name}
-                                    </h3>
-                                    <p className="text-sm text-slate-500 flex items-center gap-1 mt-0.5">
-                                        <Building2 size={12} />
-                                        {client.document_number || 'Sin CUIT/DNI'}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 space-y-3">
-                                <div className="flex items-center gap-3 text-sm text-slate-400">
-                                    <Mail size={16} className="text-slate-600 shrink-0" />
-                                    <span className="truncate">{client.email || 'No email'}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-slate-400">
-                                    <Phone size={16} className="text-slate-600 shrink-0" />
-                                    <span>{client.phone || 'No phone'}</span>
-                                </div>
-                                {client.city && (
-                                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                                        <MapPin size={16} className="text-slate-600 shrink-0" />
-                                        <span>{client.city}</span>
+                            <div>
+                                <div className="flex items-start gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm border border-white/10 shrink-0 shadow-sm">
+                                        {client.first_name?.[0]}{client.last_name?.[0]}
                                     </div>
-                                )}
+                                    <div className="pr-6">
+                                        <h3 className="font-semibold text-base text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1" title={`${client.first_name} ${client.last_name}`}>
+                                            {client.first_name} {client.last_name}
+                                        </h3>
+                                        <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5" title={client.document_number}>
+                                            <Building2 size={10} />
+                                            {client.document_number || 'Sin ID'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                        <Mail size={14} className="text-slate-600 shrink-0" />
+                                        <span className="truncate" title={client.email}>{client.email || 'No email'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                        <Phone size={14} className="text-slate-600 shrink-0" />
+                                        <span className="truncate">{client.phone || 'No phone'}</span>
+                                    </div>
+                                    {client.city && (
+                                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                                            <MapPin size={14} className="text-slate-600 shrink-0" />
+                                            <span className="truncate">{client.city}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Status and Date */}
-                            <div className="mt-6 flex items-center justify-between">
+                            <div className="pt-3 border-t border-slate-700/50 flex items-center justify-between">
                                 <span className={cn(
-                                    "px-2.5 py-1 rounded-full text-xs font-medium border",
+                                    "px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider",
                                     client.status === 'active'
-                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                        : "bg-slate-800 text-slate-400 border-slate-700"
+                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                        : "bg-slate-700/50 text-slate-400 border border-slate-600"
                                 )}>
                                     {client.status === 'active' ? 'Activo' : 'Inactivo'}
                                 </span>
-                                <span className="text-xs text-slate-600">
+                                <span className="text-[10px] text-slate-600">
                                     {new Date(client.created_at).toLocaleDateString()}
                                 </span>
                             </div>
