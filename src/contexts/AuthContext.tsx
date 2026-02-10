@@ -111,8 +111,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(session?.user ?? null);
 
                 if (session?.user) {
-                    const userProfile = await fetchUserProfile(session.user.id);
-                    setProfile(userProfile);
+                    console.log('Loading profile for user:', session.user.id);
+
+                    try {
+                        // Obtener tenant_user directamente
+                        const { data: tenantUserData, error: tenantError } = await supabase
+                            .from('tenant_users')
+                            .select('*')
+                            .eq('user_id', session.user.id)
+                            .single();
+
+                        console.log('Tenant user data:', tenantUserData, 'Error:', tenantError);
+
+                        if (tenantError || !tenantUserData) {
+                            console.error('Error fetching tenant_user:', tenantError);
+                            setProfile({
+                                id: session.user.id,
+                                email: session.user.email || '',
+                                full_name: session.user.user_metadata?.full_name || '',
+                                tenant_id: null,
+                                tenant_name: null,
+                                role: null,
+                            });
+                            return;
+                        }
+
+                        // Obtener tenant
+                        const { data: tenantData } = await supabase
+                            .from('tenants')
+                            .select('name')
+                            .eq('id', tenantUserData.tenant_id)
+                            .single();
+
+                        console.log('Tenant data:', tenantData);
+
+                        const profile = {
+                            id: session.user.id,
+                            email: session.user.email || '',
+                            full_name: session.user.user_metadata?.full_name || '',
+                            tenant_id: tenantUserData.tenant_id,
+                            tenant_name: tenantData?.name || null,
+                            role: tenantUserData.role,
+                        };
+
+                        console.log('Final profile:', profile);
+                        setProfile(profile);
+                    } catch (error) {
+                        console.error('Error loading profile:', error);
+                        setProfile(null);
+                    }
                 } else {
                     setProfile(null);
                 }

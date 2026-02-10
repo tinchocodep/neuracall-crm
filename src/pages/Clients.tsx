@@ -56,27 +56,29 @@ export default function Clients() {
 
     useEffect(() => {
         console.log('Clients useEffect - profile:', profile);
-        if (profile?.tenant_id) {
-            console.log('Fetching clients for tenant:', profile.tenant_id);
-            fetchClients();
-        } else {
-            console.warn('No tenant_id found in profile');
-            setLoading(false);
-        }
-    }, [profile]);
+        // Intentar cargar clientes siempre, RLS se encargará de filtrar por tenant
+        fetchClients();
+    }, [profile]); // Se volverá a ejecutar cuando el perfil cambie
 
     const fetchClients = async () => {
         try {
             console.log('Starting fetchClients...');
-            const { data, error } = await supabase
+
+            let query = supabase
                 .from('clients')
                 .select(`
                     *,
                     companies:client_companies(*),
                     contacts:client_contacts(*)
                 `)
-                .eq('tenant_id', profile?.tenant_id)
                 .order('created_at', { ascending: false });
+
+            // Si tenemos tenant_id explicito, lo usamos para ser más eficientes
+            if (profile?.tenant_id) {
+                query = query.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 console.error('Error fetching clients:', error);
