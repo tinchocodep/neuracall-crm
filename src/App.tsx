@@ -1,23 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import Layout from './components/layout/Layout'; // Default import!
+import Layout from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
-import Clients from './pages/Clients'; // Default import
+import Clients from './pages/Clients';
 import Login from './pages/Login';
+import Opportunities from './pages/Opportunities';
+import ComingSoon from './components/common/ComingSoon';
+import {
+  FileText, Building2, Clock, Wallet, Receipt, CreditCard,
+  Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users, Contact
+} from 'lucide-react';
 
-// Placeholder for future modules
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-[50vh] text-center">
-      <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-3xl">
-        🚧
-      </div>
-      <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
-      <p className="text-slate-400">Próximamente en Neuracall v2</p>
-    </div>
-  );
-}
+
 
 function App() {
   return (
@@ -34,10 +29,35 @@ function App() {
 
             <Route path="/dashboard" element={<Dashboard />} />
 
+            {/* Ventas */}
+            <Route path="/opportunities" element={<Opportunities />} />
+            <Route path="/quotes" element={<ComingSoon title="Presupuestos" icon={FileText} />} />
             <Route path="/clients" element={<Clients />} />
-            <Route path="/clients/new" element={<ComingSoon title="Nuevo Cliente" />} />
+            <Route path="/contacts" element={<ComingSoon title="Contactos" icon={Contact} />} />
 
-            <Route path="/opportunities" element={<ComingSoon title="Oportunidades" />} />
+            {/* Proyectos */}
+            <Route path="/projects" element={<ComingSoon title="Gestión de Proyectos" icon={Building2} />} />
+            <Route path="/tasks" element={<ComingSoon title="Mis Tareas" icon={FileText} />} />
+            <Route path="/time-tracking" element={<ComingSoon title="Control de Tiempos" icon={Clock} />} />
+
+            {/* Tesorería */}
+            <Route path="/transactions" element={<ComingSoon title="Transacciones" icon={Wallet} />} />
+            <Route path="/invoices" element={<ComingSoon title="Facturación" icon={Receipt} />} />
+            <Route path="/expenses" element={<ComingSoon title="Gastos" icon={CreditCard} />} />
+
+            {/* Inventario */}
+            <Route path="/inventory" element={<ComingSoon title="Inventario de Productos" icon={Package} />} />
+            <Route path="/movements" element={<ComingSoon title="Movimientos de Stock" icon={ArrowLeftRight} />} />
+
+            {/* RRHH */}
+            <Route path="/employees" element={<ComingSoon title="Empleados" icon={UserCog} />} />
+            <Route path="/payroll" element={<ComingSoon title="Nóminas" icon={FileText} />} />
+
+            {/* Configuración */}
+            <Route path="/profile" element={<ComingSoon title="Mi Perfil" icon={UserCircle} />} />
+            <Route path="/company-settings" element={<ComingSoon title="Configuración de Empresa" icon={Settings} />} />
+            <Route path="/users" element={<ComingSoon title="Gestión de Usuarios" icon={Users} />} />
+
             <Route path="/reports" element={<ComingSoon title="Reportes" />} />
             <Route path="/settings" element={<ComingSoon title="Configuración" />} />
 
