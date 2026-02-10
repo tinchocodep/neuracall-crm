@@ -33,7 +33,7 @@ export default function Login() {
 
     const fillDemoCredentials = () => {
         setEmail('demo@neuracall.com');
-        setPassword('demo123');
+        setPassword('demo123456');
     };
 
     return (
@@ -72,7 +72,7 @@ export default function Login() {
                                 <p className="text-sm text-blue-300 font-medium mb-2">Credenciales de Demo</p>
                                 <div className="space-y-1 text-xs text-slate-300">
                                     <p><span className="text-slate-400">Email:</span> demo@neuracall.com</p>
-                                    <p><span className="text-slate-400">Contraseña:</span> demo123</p>
+                                    <p><span className="text-slate-400">Contraseña:</span> demo123456</p>
                                 </div>
                                 <button
                                     onClick={fillDemoCredentials}
