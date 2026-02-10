@@ -14,17 +14,16 @@ export function useTimeTracking(projectId?: string) {
 
     const fetchActiveEntry = async () => {
         try {
-            const query = supabase
+            let query = supabase
                 .from('time_entries')
                 .select('*')
-                .eq('is_active', true)
-                .single();
+                .eq('is_active', true);
 
             if (projectId) {
-                query.eq('ai_project_id', projectId);
+                query = query.eq('ai_project_id', projectId);
             }
 
-            const { data, error } = await query;
+            const { data, error } = await query.single();
 
             if (error && error.code !== 'PGRST116') {
                 console.error('Error fetching active entry:', error);
