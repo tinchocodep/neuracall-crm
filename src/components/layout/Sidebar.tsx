@@ -19,7 +19,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const { signOut } = useAuth();
-    const sidebarRef = useRef<aside>(null);
+    const sidebarRef = useRef<HTMLElement>(null);
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },

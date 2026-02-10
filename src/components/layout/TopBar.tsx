@@ -1,4 +1,4 @@
-import { Bell, Search, User, Building2 } from 'lucide-react';
+import { Bell, Search, Menu, User, Building2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../lib/utils';
 
@@ -17,9 +17,19 @@ export default function TopBar({ toggleSidebar, isSidebarOpen }: TopBarProps) {
     const initial = profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U';
 
     return (
-        <header className="h-20 px-6 flex items-center justify-between bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 sticky top-0 z-30 transition-all duration-300">
+        <header className={cn(
+            "h-20 px-6 flex items-center justify-between bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 sticky top-0 z-30 transition-all duration-300",
+            isSidebarOpen ? "md:pl-6" : "md:pl-6"
+        )}>
             {/* Left Section: Tenant Info */}
             <div className="flex items-center gap-4">
+                <button
+                    onClick={toggleSidebar}
+                    className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+                >
+                    <Menu size={24} />
+                </button>
+
                 <div className="flex flex-col">
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
                         {tenantName}
