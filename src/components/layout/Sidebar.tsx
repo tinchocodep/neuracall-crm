@@ -149,7 +149,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     {isOpen ? (
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                                <span className="text-white font-bold text-lg">N</span>
+                                <img src="/logo.png" alt="N" className="w-full h-full object-contain p-1.5" />
                             </div>
                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
                                 Neuracall
@@ -160,7 +160,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                         </div>
                     ) : (
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 mx-auto">
-                            <span className="text-white font-bold text-xl">N</span>
+                            <img src="/logo.png" alt="N" className="w-full h-full object-contain p-2" />
                         </div>
                     )}
                 </div>
