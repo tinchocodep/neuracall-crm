@@ -31,41 +31,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     // Función para obtener el perfil del usuario con tenant
-    const fetchUserProfile = async (userId: string) => {
-        const { data, error } = await supabase
-            .from('users')
-            .select(`
-                id,
-                email,
-                full_name,
-                tenant_users (
-                    tenant_id,
-                    role,
-                    tenants (
-                        name
-                    )
-                )
-            `)
-            .eq('id', userId)
-            .single();
+    const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+        try {
+            // Obtener usuario
+            const { data: userData, error: userError } = await supabase
+                .from('users')
+                .select('id, email, full_name')
+                .eq('id', userId)
+                .single();
 
-        if (error) {
-            console.error('Error fetching user profile:', error);
+            if (userError || !userData) {
+                console.error('Error fetching user:', userError);
+                return null;
+            }
+
+            // Obtener tenant_user
+            const { data: tenantUserData } = await supabase
+                .from('tenant_users')
+                .select('tenant_id, role')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (!tenantUserData) {
+                // Usuario sin tenant
+                return {
+                    id: userData.id,
+                    email: userData.email,
+                    full_name: userData.full_name,
+                    tenant_id: null,
+                    tenant_name: null,
+                    role: null,
+                };
+            }
+
+            // Obtener tenant
+            const { data: tenantData } = await supabase
+                .from('tenants')
+                .select('name')
+                .eq('id', tenantUserData.tenant_id)
+                .single();
+
+            return {
+                id: userData.id,
+                email: userData.email,
+                full_name: userData.full_name,
+                tenant_id: tenantUserData.tenant_id,
+                tenant_name: tenantData?.name || null,
+                role: tenantUserData.role,
+            };
+        } catch (error) {
+            console.error('Error in fetchUserProfile:', error);
             return null;
         }
-
-        // Extraer información del tenant
-        const tenantUser = data.tenant_users?.[0];
-        const tenant = tenantUser?.tenants;
-
-        return {
-            id: data.id,
-            email: data.email,
-            full_name: data.full_name,
-            tenant_id: tenantUser?.tenant_id || null,
-            tenant_name: (tenant as any)?.name || null,
-            role: tenantUser?.role || null,
-        };
     };
 
     useEffect(() => {
