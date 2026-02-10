@@ -147,20 +147,22 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none" />
                 <div className="flex items-center gap-3 px-4 w-full overflow-hidden relative z-10">
                     {isOpen ? (
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                                <img src="/logo.png" alt="N" className="w-full h-full object-contain p-1.5" />
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white to-blue-100 flex items-center justify-center shadow-lg shadow-blue-900/20 border border-blue-200/50">
+                                <img src="/logo.png" alt="Neuracall" className="w-full h-full object-contain p-0.5" />
                             </div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                                Neuracall
-                            </span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 ml-auto">
-                                V3
-                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300 leading-none">
+                                    Neuracall
+                                </span>
+                                <span className="text-[10px] text-blue-400 font-medium tracking-wider">
+                                    CRM v3.0
+                                </span>
+                            </div>
                         </div>
                     ) : (
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 mx-auto">
-                            <img src="/logo.png" alt="N" className="w-full h-full object-contain p-2" />
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-white to-blue-100 flex items-center justify-center shadow-lg shadow-blue-900/20 border border-blue-200/50 shrink-0 mx-auto">
+                            <img src="/logo.png" alt="Neuracall" className="w-full h-full object-contain p-1" />
                         </div>
                     )}
                 </div>
