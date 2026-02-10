@@ -1,19 +1,44 @@
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
+import Sidebar from './Sidebar';
+import TopBar from './TopBar';
+import MobileNav from './MobileNav';
 
-export function Layout() {
+export default function Layout() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const location = useLocation();
-    const isDashboard = location.pathname === '/';
+    const isMobile = window.innerWidth < 768;
+
+    // Auto-close sidebar on mobile route change
+    useEffect(() => {
+        if (isMobile) setIsSidebarOpen(false);
+    }, [location.pathname]);
 
     return (
-        <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
-            <Sidebar />
-            <div className="flex flex-col flex-1 h-screen overflow-hidden">
-                {!isDashboard && <TopBar />}
-                <main className={`flex-1 overflow-auto ${isDashboard ? 'p-0' : 'p-6 md:p-8'} bg-muted/5 transition-all duration-300`}>
-                    <Outlet />
+        <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
+            {/* Desktop Sidebar (Only visible on md+) */}
+            <div className="hidden md:block h-full transition-all duration-300 ease-in-out">
+                <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+                {/* TopBar (Header) */}
+                <TopBar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
+
+                {/* Scrollable Content */}
+                <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 md:pb-0 scroll-smooth">
+                    <div className="h-full w-full">
+                        <Outlet />
+                    </div>
                 </main>
+
+                {/* Mobile Navigation (Only visible on < md) */}
+                <div className="md:hidden fixed bottom-6 left-0 right-0 px-4 z-50">
+                    <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl p-2 flex justify-around items-center">
+                        <MobileNav />
+                    </div>
+                </div>
             </div>
         </div>
     );

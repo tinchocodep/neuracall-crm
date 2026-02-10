@@ -1,287 +1,120 @@
-import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useRef } from 'react';
+import { NavLink } from 'react-router-dom';
 import {
     LayoutDashboard,
     Users,
-    FileText,
-    DollarSign,
-    Menu,
-    X,
-    LogOut,
-    ChevronDown,
-    Brain
+    Briefcase,
+    Settings,
+    PieChart,
+    ChevronLeft,
+    LogOut
 } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { useAuth } from '../../contexts/AuthContext';
+import { cn } from '../../lib/utils';
 
-const navItems = [
-    {
-        label: 'Dashboard',
-        icon: LayoutDashboard,
-        path: '/',
-        description: 'Vista general de métricas y KPIs'
-    },
-    {
-        label: 'CRM',
-        icon: Users,
-        path: '/crm',
-        description: 'Gestión de relaciones con clientes',
-        subItems: [
-            {
-                label: 'Clientes',
-                path: '/crm/clients',
-                description: 'Empresas que ya son clientes activos'
-            },
-            {
-                label: 'Contactos',
-                path: '/crm/contacts',
-                description: 'Personas de contacto en empresas'
-            },
-            {
-                label: 'Prospectos',
-                path: '/crm/prospects',
-                description: 'Empresas potenciales en proceso de captación'
-            },
-            {
-                label: 'Oportunidades',
-                path: '/crm/opportunities',
-                description: 'Proyectos de IA en negociación'
-            },
-        ]
-    },
-    {
-        label: 'Proyectos IA',
-        icon: Brain,
-        path: '/proyectos-ia',
-        description: 'Gestión de proyectos de inteligencia artificial'
-    },
-    {
-        label: 'Cotizador',
-        icon: FileText,
-        path: '/cotizador',
-        description: 'Sistema de cotizaciones y presupuestos',
-        subItems: [
-            {
-                label: 'Cotizaciones',
-                path: '/cotizador/quotes',
-                description: 'Crear y gestionar cotizaciones'
-            },
-            {
-                label: 'Pedidos',
-                path: '/cotizador/orders',
-                description: 'Pedidos confirmados'
-            },
-            {
-                label: 'Remitos',
-                path: '/cotizador/receipts',
-                description: 'Comprobantes de entrega'
-            },
-            {
-                label: 'Cuenta Corriente',
-                path: '/cotizador/current-account',
-                description: 'Estado de cuenta de clientes'
-            },
-            {
-                label: 'Stock',
-                path: '/cotizador/stock',
-                description: 'Inventario de productos'
-            },
-        ]
-    },
-    {
-        label: 'Finanzas',
-        icon: DollarSign,
-        path: '/finanzas',
-        description: 'Gestión financiera y tesorera',
-        subItems: [
-            {
-                label: 'Tesorera',
-                path: '/finanzas/treasury',
-                description: 'Flujo de caja y movimientos'
-            },
-            {
-                label: 'Gastos',
-                path: '/finanzas/expenses',
-                description: 'Control de gastos operativos'
-            },
-            {
-                label: 'Sueldos',
-                path: '/finanzas/salaries',
-                description: 'Gestión de nómina'
-            },
-            {
-                label: 'Caja Chica',
-                path: '/finanzas/petty-cash',
-                description: 'Gastos menores y efectivo'
-            },
-            {
-                label: 'Presupuestos',
-                path: '/finanzas/budgets',
-                description: 'Planificación presupuestaria'
-            },
-        ]
-    },
-];
+interface SidebarProps {
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
+}
 
-export function Sidebar() {
-    const [isOpen, setIsOpen] = useState(true);
-    const [expandedItems, setExpandedItems] = useState<string[]>([]);
-    const location = useLocation();
+export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
+    const { signOut } = useAuth();
+    const sidebarRef = useRef<aside>(null);
 
-    const toggleExpand = (label: string) => {
-        setExpandedItems(prev =>
-            prev.includes(label) ? prev.filter(item => item !== label) : [...prev, label]
-        );
-    };
+    const navItems = [
+        { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+        { icon: Users, label: 'Clientes', to: '/clients' },
+        { icon: Briefcase, label: 'Oportunidades', to: '/opportunities' },
+        { icon: PieChart, label: 'Reportes', to: '/reports', disabled: true },
+        { icon: Settings, label: 'Configuración', to: '/settings' },
+    ];
 
     return (
-        <aside className={cn(
-            "bg-gradient-to-b from-[#0F172A] to-[#1E293B] border-r border-border/30 h-screen transition-all duration-300 flex flex-col fixed z-20 md:relative shadow-2xl",
-            isOpen ? "w-64" : "w-20"
-        )}>
-            {/* Logo Header */}
-            <div className="p-4 flex items-center justify-between border-b border-white/10 h-16 bg-black/20">
-                <div className={cn("flex items-center gap-3 transition-all overflow-hidden", !isOpen && "w-0 opacity-0")}>
-                    <img
-                        src={import.meta.env.VITE_LOGO_URL || '/neuracall-logo.png'}
-                        alt={import.meta.env.VITE_APP_NAME || 'Neuracall'}
-                        className="w-9 h-9 drop-shadow-lg"
-                    />
-                    <div className="flex flex-col">
-                        <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent tracking-tight">
-                            {import.meta.env.VITE_APP_NAME || 'Neuracall'}
-                        </span>
-                        <span className="text-[10px] text-blue-400/60 font-medium tracking-wider">
-                            AI AGENCY
-                        </span>
+        <aside
+            ref={sidebarRef}
+            className={cn(
+                "h-screen bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 relative z-20",
+                isOpen ? "w-64" : "w-20"
+            )}
+        >
+            {/* Toggle Button */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="absolute -right-3 top-8 bg-blue-600 hover:bg-blue-500 text-white p-1 rounded-full shadow-lg border-2 border-slate-900 transition-colors z-50"
+            >
+                <ChevronLeft size={16} className={cn("transition-transform", !isOpen && "rotate-180")} />
+            </button>
+
+            {/* Logo Area */}
+            <div className="h-20 flex items-center justify-center border-b border-slate-800/50">
+                <div className="flex items-center gap-3 px-4 w-full overflow-hidden">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+                        <span className="text-white font-bold text-xl">N</span>
                     </div>
+                    <span className={cn(
+                        "font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 whitespace-nowrap transition-opacity duration-200",
+                        !isOpen && "opacity-0 hidden"
+                    )}>
+                        Neuracall
+                    </span>
                 </div>
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className={cn(
-                        "p-2 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-white",
-                        !isOpen && "mx-auto"
-                    )}
-                >
-                    {isOpen ? <X size={20} /> : <Menu size={20} />}
-                </button>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3 no-scrollbar">
-                {navItems.map((item) => {
-                    const isActive = item.path === '/'
-                        ? location.pathname === '/'
-                        : location.pathname.startsWith(item.path);
-
-                    const isExpanded = expandedItems.includes(item.label);
-
-                    return (
-                        <div key={item.label}>
-                            {item.subItems ? (
-                                <>
-                                    <button
-                                        onClick={() => toggleExpand(item.label)}
-                                        className={cn(
-                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative",
-                                            isActive
-                                                ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/20"
-                                                : "text-slate-400 hover:text-white hover:bg-white/5"
-                                        )}
-                                    >
-                                        <item.icon
-                                            size={20}
-                                            className={cn(
-                                                "transition-all flex-shrink-0",
-                                                isActive && "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                                            )}
-                                        />
-                                        <span className={cn(
-                                            "font-medium text-sm transition-all flex-1 text-left",
-                                            !isOpen && "opacity-0 w-0"
-                                        )}>
-                                            {item.label}
-                                        </span>
-                                        {isOpen && (
-                                            <ChevronDown
-                                                size={16}
-                                                className={cn(
-                                                    "transition-transform",
-                                                    isExpanded && "rotate-180"
-                                                )}
-                                            />
-                                        )}
-                                    </button>
-                                    {isOpen && isExpanded && (
-                                        <div className="ml-8 mt-1 space-y-1">
-                                            {item.subItems.map((subItem) => {
-                                                const isSubActive = location.pathname === subItem.path;
-                                                return (
-                                                    <NavLink
-                                                        key={subItem.path}
-                                                        to={subItem.path}
-                                                        className={cn(
-                                                            "flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm",
-                                                            isSubActive
-                                                                ? "bg-blue-500/10 text-blue-400 font-medium"
-                                                                : "text-slate-400 hover:text-white hover:bg-white/5"
-                                                        )}
-                                                    >
-                                                        <div className={cn(
-                                                            "w-1.5 h-1.5 rounded-full",
-                                                            isSubActive ? "bg-blue-400" : "bg-slate-600"
-                                                        )} />
-                                                        {subItem.label}
-                                                    </NavLink>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <NavLink
-                                    to={item.path}
+            <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar">
+                {navItems.map((item) => (
+                    <NavLink
+                        key={item.label}
+                        to={item.to}
+                        onClick={(e) => item.disabled && e.preventDefault()}
+                        className={({ isActive }) => cn(
+                            "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                            isActive
+                                ? "bg-blue-600/10 text-blue-400 font-medium"
+                                : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50",
+                            item.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-slate-400"
+                        )}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <item.icon
+                                    size={22}
                                     className={cn(
-                                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative",
-                                        isActive
-                                            ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/20"
-                                            : "text-slate-400 hover:text-white hover:bg-white/5"
+                                        "shrink-0 transition-colors",
+                                        isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"
                                     )}
-                                >
-                                    <item.icon
-                                        size={20}
-                                        className={cn(
-                                            "transition-all flex-shrink-0",
-                                            isActive && "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                                        )}
-                                    />
-                                    <span className={cn(
-                                        "font-medium text-sm transition-all",
-                                        !isOpen && "opacity-0 w-0"
-                                    )}>
-                                        {item.label}
+                                />
+                                <span className={cn(
+                                    "whitespace-nowrap transition-all duration-200",
+                                    !isOpen && "opacity-0 w-0 translate-x-10 overflow-hidden"
+                                )}>
+                                    {item.label}
+                                </span>
+                                {item.disabled && isOpen && (
+                                    <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-500">
+                                        PRONTO
                                     </span>
-                                </NavLink>
-                            )}
-                        </div>
-                    );
-                })}
+                                )}
+                                {isActive && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                                )}
+                            </>
+                        )}
+                    </NavLink>
+                ))}
             </nav>
 
-            {/* Logout Button */}
-            <div className="p-3 border-t border-white/10 bg-black/20">
+            {/* Footer / User Profile */}
+            <div className="p-4 border-t border-slate-800">
                 <button
+                    onClick={() => signOut()}
                     className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-slate-400 hover:text-red-400 hover:bg-red-500/10",
+                        "flex items-center gap-3 w-full p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors",
                         !isOpen && "justify-center"
                     )}
                 >
-                    <LogOut size={20} className="flex-shrink-0" />
-                    <span className={cn(
-                        "font-medium text-sm transition-all",
-                        !isOpen && "opacity-0 w-0"
-                    )}>
-                        Cerrar Sesión
-                    </span>
+                    <LogOut size={20} />
+                    <span className={cn("font-medium whitespace-nowrap", !isOpen && "hidden")}>Cerrar Sesión</span>
                 </button>
             </div>
         </aside>
