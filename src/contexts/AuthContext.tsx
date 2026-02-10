@@ -91,12 +91,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const initAuth = async () => {
             try {
                 // Timeout de 5 segundos para evitar carga infinita
-                const timeoutPromise = new Promise((_, reject) =>
+                const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Timeout')), 5000)
                 );
 
                 const sessionPromise = supabase.auth.getSession();
-
+                
                 const { data: { session } } = await Promise.race([
                     sessionPromise,
                     timeoutPromise
@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
             if (!mounted) return;
-
+            
             setSession(session);
             setUser(session?.user ?? null);
 
