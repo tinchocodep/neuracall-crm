@@ -113,13 +113,13 @@ export function Sidebar() {
             <div className="p-4 flex items-center justify-between border-b border-white/10 h-16 bg-black/20">
                 <div className={cn("flex items-center gap-3 transition-all overflow-hidden", !isOpen && "w-0 opacity-0")}>
                     <img
-                        src="/neuracall-logo.svg"
-                        alt="Neuracall"
+                        src={import.meta.env.VITE_LOGO_URL || '/neuracall-logo.png'}
+                        alt={import.meta.env.VITE_APP_NAME || 'Neuracall'}
                         className="w-9 h-9 drop-shadow-lg"
                     />
                     <div className="flex flex-col">
                         <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent tracking-tight">
-                            Neuracall
+                            {import.meta.env.VITE_APP_NAME || 'Neuracall'}
                         </span>
                         <span className="text-[10px] text-blue-400/60 font-medium tracking-wider">
                             AI AGENCY
