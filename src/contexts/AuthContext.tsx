@@ -47,24 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (session?.user) {
                     console.log('Loading profile for user:', session.user.email);
 
-                    // CAMINO RÁPIDO para tu usuario (bypass de base de datos)
-                    if (session.user.email === 'tinchocabrera100@gmail.com') {
-                        console.log('⚡ FAST TRACK: User is admin, skipping DB queries completely');
-
-                        const profile = {
-                            id: session.user.id,
-                            email: session.user.email || '',
-                            full_name: session.user.user_metadata?.full_name || 'Admin User',
-                            tenant_id: '3c61110d-a0a9-4f5b-a0e3-62bb99273963',
-                            tenant_name: 'Neuracall',
-                            role: 'admin',
-                        };
-
-                        console.log('Final profile loaded (Main loop):', profile);
-                        setProfile(profile);
-                        return; // <--- IMPORTANTE: Salir aquí para no ejecutar nada más
-                    }
-
                     try {
                         let tenantId = null;
                         let role = null;
