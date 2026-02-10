@@ -53,30 +53,44 @@ export default function Clients() {
     const [, setSelectedClient] = useState<Client | null>(null);
     const [, setShowModal] = useState(false);
 
+
     useEffect(() => {
+        console.log('Clients useEffect - profile:', profile);
         if (profile?.tenant_id) {
+            console.log('Fetching clients for tenant:', profile.tenant_id);
             fetchClients();
+        } else {
+            console.warn('No tenant_id found in profile');
+            setLoading(false);
         }
     }, [profile]);
 
     const fetchClients = async () => {
-        const { data, error } = await supabase
-            .from('clients')
-            .select(`
-        *,
-        companies:client_companies(*),
-        contacts:client_contacts(*)
-      `)
-            .eq('tenant_id', profile?.tenant_id)
-            .order('created_at', { ascending: false });
+        try {
+            console.log('Starting fetchClients...');
+            const { data, error } = await supabase
+                .from('clients')
+                .select(`
+                    *,
+                    companies:client_companies(*),
+                    contacts:client_contacts(*)
+                `)
+                .eq('tenant_id', profile?.tenant_id)
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching clients:', error);
-            return;
+            if (error) {
+                console.error('Error fetching clients:', error);
+                setLoading(false);
+                return;
+            }
+
+            console.log('Clients fetched successfully:', data?.length || 0, 'clients');
+            setClients(data || []);
+            setLoading(false);
+        } catch (err) {
+            console.error('Exception in fetchClients:', err);
+            setLoading(false);
         }
-
-        setClients(data || []);
-        setLoading(false);
     };
 
     const getStatusColor = (status: string) => {
