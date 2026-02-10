@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import ProyectosIA from './pages/ProyectosIA';
+import Login from './pages/Login';
 
 function ComingSoon({ title, description }: { title: string; description: string }) {
   return (
@@ -20,132 +23,145 @@ function ComingSoon({ title, description }: { title: string; description: string
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
 
-          {/* CRM Routes */}
-          <Route path="crm">
-            <Route index element={<Navigate to="clients" replace />} />
-            <Route
-              path="clients"
-              element={<ComingSoon
-                title="Clientes"
-                description="Gestión de empresas que ya son clientes activos de Neuracall"
-              />}
-            />
-            <Route
-              path="contacts"
-              element={<ComingSoon
-                title="Contactos"
-                description="Directorio de personas dentro de empresas clientes y prospectos"
-              />}
-            />
-            <Route
-              path="prospects"
-              element={<ComingSoon
-                title="Prospectos"
-                description="Pipeline de empresas potenciales en proceso de captación"
-              />}
-            />
-            <Route
-              path="opportunities"
-              element={<ComingSoon
-                title="Oportunidades"
-                description="Proyectos de IA específicos en negociación"
-              />}
-            />
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+
+            {/* CRM Routes */}
+            <Route path="crm">
+              <Route index element={<Navigate to="clients" replace />} />
+              <Route
+                path="clients"
+                element={<ComingSoon
+                  title="Clientes"
+                  description="Gestión de empresas que ya son clientes activos de Neuracall"
+                />}
+              />
+              <Route
+                path="contacts"
+                element={<ComingSoon
+                  title="Contactos"
+                  description="Directorio de personas dentro de empresas clientes y prospectos"
+                />}
+              />
+              <Route
+                path="prospects"
+                element={<ComingSoon
+                  title="Prospectos"
+                  description="Pipeline de empresas potenciales en proceso de captación"
+                />}
+              />
+              <Route
+                path="opportunities"
+                element={<ComingSoon
+                  title="Oportunidades"
+                  description="Proyectos de IA específicos en negociación"
+                />}
+              />
+            </Route>
+
+            {/* AI Projects Routes */}
+            <Route path="ai-projects">
+              <Route index element={<Navigate to="active" replace />} />
+              <Route path="active" element={<ProyectosIA />} />
+              <Route
+                path="completed"
+                element={<ComingSoon
+                  title="Proyectos Completados"
+                  description="Archivo de proyectos de IA finalizados exitosamente"
+                />}
+              />
+            </Route>
+
+            {/* Sales Routes */}
+            <Route path="sales">
+              <Route index element={<Navigate to="quotes" replace />} />
+              <Route
+                path="quotes"
+                element={<ComingSoon
+                  title="Cotizador"
+                  description="Generador de cotizaciones para proyectos de IA"
+                />}
+              />
+              <Route
+                path="budget"
+                element={<ComingSoon
+                  title="Presupuesto"
+                  description="Control presupuestario y proyección de ventas"
+                />}
+              />
+            </Route>
+
+            {/* Operations Routes */}
+            <Route path="operations">
+              <Route index element={<Navigate to="tasks" replace />} />
+              <Route
+                path="tasks"
+                element={<ComingSoon
+                  title="Tareas"
+                  description="Gestión de tareas y asignaciones del equipo"
+                />}
+              />
+              <Route
+                path="calendar"
+                element={<ComingSoon
+                  title="Calendario"
+                  description="Agenda compartida con reuniones y eventos"
+                />}
+              />
+            </Route>
+
+            {/* Finance Routes */}
+            <Route path="finance">
+              <Route index element={<Navigate to="treasury" replace />} />
+              <Route
+                path="treasury"
+                element={<ComingSoon
+                  title="Tesorería"
+                  description="Control de flujo de caja y proyecciones financieras"
+                />}
+              />
+              <Route
+                path="expenses"
+                element={<ComingSoon
+                  title="Gastos"
+                  description="Control y categorización de gastos operativos"
+                />}
+              />
+              <Route
+                path="salaries"
+                element={<ComingSoon
+                  title="Sueldos"
+                  description="Gestión de nómina y pagos al equipo"
+                />}
+              />
+              <Route
+                path="petty-cash"
+                element={<ComingSoon
+                  title="Cajas Chicas"
+                  description="Control de gastos menores y reembolsos"
+                />}
+              />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-
-          {/* AI Projects Routes */}
-          <Route path="ai-projects">
-            <Route index element={<Navigate to="active" replace />} />
-            <Route path="active" element={<ProyectosIA />} />
-            <Route
-              path="completed"
-              element={<ComingSoon
-                title="Proyectos Completados"
-                description="Archivo de proyectos de IA finalizados exitosamente"
-              />}
-            />
-          </Route>
-
-          {/* Sales Routes */}
-          <Route path="sales">
-            <Route index element={<Navigate to="quotes" replace />} />
-            <Route
-              path="quotes"
-              element={<ComingSoon
-                title="Cotizador"
-                description="Generador de cotizaciones para proyectos de IA"
-              />}
-            />
-            <Route
-              path="budget"
-              element={<ComingSoon
-                title="Presupuesto"
-                description="Control presupuestario y proyección de ventas"
-              />}
-            />
-          </Route>
-
-          {/* Operations Routes */}
-          <Route path="operations">
-            <Route index element={<Navigate to="tasks" replace />} />
-            <Route
-              path="tasks"
-              element={<ComingSoon
-                title="Tareas"
-                description="Gestión de tareas y asignaciones del equipo"
-              />}
-            />
-            <Route
-              path="calendar"
-              element={<ComingSoon
-                title="Calendario"
-                description="Agenda compartida con reuniones y eventos"
-              />}
-            />
-          </Route>
-
-          {/* Finance Routes */}
-          <Route path="finance">
-            <Route index element={<Navigate to="treasury" replace />} />
-            <Route
-              path="treasury"
-              element={<ComingSoon
-                title="Tesorería"
-                description="Control de flujo de caja y proyecciones financieras"
-              />}
-            />
-            <Route
-              path="expenses"
-              element={<ComingSoon
-                title="Gastos"
-                description="Control y categorización de gastos operativos"
-              />}
-            />
-            <Route
-              path="salaries"
-              element={<ComingSoon
-                title="Sueldos"
-                description="Gestión de nómina y pagos al equipo"
-              />}
-            />
-            <Route
-              path="petty-cash"
-              element={<ComingSoon
-                title="Cajas Chicas"
-                description="Control de gastos menores y reembolsos"
-              />}
-            />
-          </Route>
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

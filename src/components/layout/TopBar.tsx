@@ -1,12 +1,34 @@
-import React from 'react';
-import { Search, Bell, Moon, Sun } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Bell, Moon, Sun, LogOut, User, Settings } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function TopBar() {
     const [isDark, setIsDark] = React.useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const { user, signOut } = useAuth();
 
     const toggleTheme = () => {
         setIsDark(!isDark);
         document.documentElement.classList.toggle('dark');
+    };
+
+    const handleLogout = async () => {
+        await signOut();
+    };
+
+    const getUserInitials = () => {
+        if (!user?.email) return 'U';
+        const name = user.user_metadata?.full_name || user.email;
+        return name
+            .split(' ')
+            .map((n: string) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    const getUserName = () => {
+        return user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
     };
 
     return (
@@ -35,14 +57,55 @@ export function TopBar() {
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card"></span>
                 </button>
 
-                <div className="hidden md:flex items-center gap-3 pl-4 border-l border-border">
-                    <div className="text-right">
-                        <p className="text-sm font-medium leading-none">Martin Gemini</p>
-                        <p className="text-xs text-muted-foreground mt-1">CEO</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs ring-2 ring-background">
-                        MG
-                    </div>
+                {/* User Dropdown */}
+                <div className="relative">
+                    <button
+                        onClick={() => setShowDropdown(!showDropdown)}
+                        className="hidden md:flex items-center gap-3 pl-4 border-l border-border hover:bg-accent/50 rounded-lg px-3 py-2 transition-colors"
+                    >
+                        <div className="text-right">
+                            <p className="text-sm font-medium leading-none">{getUserName()}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{user?.email}</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs ring-2 ring-background">
+                            {getUserInitials()}
+                        </div>
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {showDropdown && (
+                        <>
+                            <div
+                                className="fixed inset-0 z-40"
+                                onClick={() => setShowDropdown(false)}
+                            />
+                            <div className="absolute right-0 mt-2 w-56 bg-card border border-border/50 rounded-xl shadow-lg z-50 overflow-hidden">
+                                <div className="p-3 border-b border-border/30">
+                                    <p className="text-sm font-medium text-foreground">{getUserName()}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">{user?.email}</p>
+                                </div>
+                                <div className="py-1">
+                                    <button className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent/50 transition-colors flex items-center gap-2">
+                                        <User size={16} />
+                                        Mi perfil
+                                    </button>
+                                    <button className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent/50 transition-colors flex items-center gap-2">
+                                        <Settings size={16} />
+                                        Configuración
+                                    </button>
+                                </div>
+                                <div className="border-t border-border/30 py-1">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                    >
+                                        <LogOut size={16} />
+                                        Cerrar sesión
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
