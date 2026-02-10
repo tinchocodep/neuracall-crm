@@ -1,4 +1,3 @@
-@config "../tailwind.config.js";
 @import "tailwindcss";
 
 @layer base {
@@ -29,7 +28,8 @@
     --radius: 0.75rem;
   }
 
-  .dark {
+  .dark,
+  body {
     /* Neuracall Dark Theme */
     --background: 222 47% 11%;
     /* Deep slate blue */
@@ -56,10 +56,7 @@
     --input: 217 32.6% 17.5%;
     --ring: 217 91% 60%;
   }
-}
 
-
-@layer base {
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
