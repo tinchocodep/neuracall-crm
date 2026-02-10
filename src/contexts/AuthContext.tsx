@@ -33,12 +33,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Función para obtener el perfil del usuario con tenant
     const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
         try {
+            console.log('fetchUserProfile - userId:', userId);
+
             // Obtener usuario
             const { data: userData, error: userError } = await supabase
                 .from('users')
-                .select('id, email, full_name')
+                .select('*')
                 .eq('id', userId)
                 .single();
+
+            console.log('User data:', userData, 'Error:', userError);
 
             if (userError || !userData) {
                 console.error('Error fetching user:', userError);
@@ -46,13 +50,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             // Obtener tenant_user
-            const { data: tenantUserData } = await supabase
+            const { data: tenantUserData, error: tenantError } = await supabase
                 .from('tenant_users')
-                .select('tenant_id, role')
+                .select('*')
                 .eq('user_id', userId)
-                .maybeSingle();
+                .single();
 
-            if (!tenantUserData) {
+            console.log('Tenant user data:', tenantUserData, 'Error:', tenantError);
+
+            if (tenantError || !tenantUserData) {
+                console.error('Error fetching tenant_user:', tenantError);
                 // Usuario sin tenant
                 return {
                     id: userData.id,
@@ -71,7 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .eq('id', tenantUserData.tenant_id)
                 .single();
 
-            return {
+            console.log('Tenant data:', tenantData);
+
+            const profile = {
                 id: userData.id,
                 email: userData.email,
                 full_name: userData.full_name,
@@ -79,6 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 tenant_name: tenantData?.name || null,
                 role: tenantUserData.role,
             };
+
+            console.log('Final profile:', profile);
+            return profile;
         } catch (error) {
             console.error('Error in fetchUserProfile:', error);
             return null;
