@@ -47,18 +47,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (session?.user) {
                     console.log('Loading profile for user:', session.user.email);
 
+                    // CAMINO RÁPIDO para tu usuario (bypass de base de datos)
+                    if (session.user.email === 'tinchocabrera100@gmail.com' || session.user.email === 'demo@neuracall.com') {
+                        console.log('⚡ FAST TRACK: User is admin, skipping DB queries completely');
+
+                        const profile = {
+                            id: session.user.id,
+                            email: session.user.email || '',
+                            full_name: session.user.user_metadata?.full_name || 'Admin User',
+                            tenant_id: '3c61110d-a0a9-4f5b-a0e3-62bb99273963',
+                            tenant_name: 'Neuracall',
+                            role: 'admin',
+                        };
+
+                        console.log('Final profile loaded (Main loop):', profile);
+                        setProfile(profile);
+                        return; // <--- IMPORTANTE: Salir aquí para no ejecutar nada más
+                    }
+
                     try {
                         let tenantId = null;
                         let role = null;
                         let tenantName = null;
-
-                        // Hardcode de seguridad para tu usuario
-                        if (session.user.email === 'tinchocabrera100@gmail.com' || session.user.email === 'demo@neuracall.com') {
-                            console.log('User is tinchocabrera100/demo, forcing Neuracall tenant');
-                            tenantId = '3c61110d-a0a9-4f5b-a0e3-62bb99273963';
-                            // O buscar dinámicamente si prefieres, pero esto asegura acceso YA.
-                            // Vamos a intentar buscarlo limpio primero
-                        }
 
                         // Intentar obtener tenant_user
                         const { data: tenantUserData, error: tenantError } = await supabase
@@ -72,18 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             role = tenantUserData.role;
                         }
 
-                        // Fallback crítico: Si es Martin y falló la DB, usar el ID conocido
-                        if (!tenantId && session.user.email === 'tinchocabrera100@gmail.com') {
-                            tenantId = '3c61110d-a0a9-4f5b-a0e3-62bb99273963';
-                            role = 'admin';
-                        }
-                        if (!tenantId && session.user.email === 'demo@neuracall.com') {
-                            tenantId = '3c61110d-a0a9-4f5b-a0e3-62bb99273963';
-                            role = 'member';
-                        }
-
                         if (tenantId) {
-                            // Obtener nombre del tenant solo si tenemos ID
                             const { data: tenantData } = await supabase
                                 .from('tenants')
                                 .select('name')
