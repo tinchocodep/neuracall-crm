@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
+import ProyectosIA from './pages/ProyectosIA';
 
 function ComingSoon({ title, description }: { title: string; description: string }) {
   return (
@@ -60,13 +61,7 @@ function App() {
           {/* AI Projects Routes */}
           <Route path="ai-projects">
             <Route index element={<Navigate to="active" replace />} />
-            <Route
-              path="active"
-              element={<ComingSoon
-                title="Proyectos IA Activos"
-                description="Gestión de proyectos de inteligencia artificial en desarrollo"
-              />}
-            />
+            <Route path="active" element={<ProyectosIA />} />
             <Route
               path="completed"
               element={<ComingSoon
