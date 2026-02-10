@@ -1,0 +1,33 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head outline -->
+  <path d="M60 20 C45 20, 35 30, 35 45 L35 65 C35 75, 40 85, 50 90 L50 100 C50 105, 55 110, 60 110 C65 110, 70 105, 70 100 L70 90 C80 85, 85 75, 85 65 L85 45 C85 30, 75 20, 60 20 Z" 
+        stroke="#3B82F6" 
+        stroke-width="8" 
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+  
+  <!-- Brain wave - smooth sine wave -->
+  <path d="M45 50 Q50 42, 55 50 T65 50 Q70 42, 75 50" 
+        stroke="#3B82F6" 
+        stroke-width="6" 
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+  
+  <path d="M45 60 Q50 52, 55 60 T65 60 Q70 52, 75 60" 
+        stroke="#3B82F6" 
+        stroke-width="6" 
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.7"/>
+  
+  <path d="M45 70 Q50 62, 55 70 T65 70 Q70 62, 75 70" 
+        stroke="#3B82F6" 
+        stroke-width="6" 
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.5"/>
+</svg>

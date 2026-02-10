@@ -1,0 +1,87 @@
+@config "../tailwind.config.js";
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+
+    /* Neuracall Blue Theme */
+    --primary: 217 91% 60%;
+    /* Blue #3b82f6 */
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Neuracall Dark Theme */
+    --background: 222 47% 11%;
+    /* Deep slate blue */
+    --foreground: 210 20% 98%;
+    --card: 222 47% 13%;
+    --card-foreground: 210 20% 98%;
+    --popover: 222 47% 13%;
+    --popover-foreground: 210 20% 98%;
+
+    /* Neuracall Blue */
+    --primary: 217 91% 60%;
+    /* Blue #3b82f6 */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 32.6% 17.5%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 217 32.6% 17.5%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 217 32.6% 17.5%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 217 32.6% 17.5%;
+    --input: 217 32.6% 17.5%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-background/60 backdrop-blur-lg border border-border/50;
+  }
+
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-sm border border-border/40 hover:bg-card/70 transition-colors duration-300;
+  }
+
+  .neuracall-gradient {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-500;
+  }
+
+  .neuracall-text-gradient {
+    @apply bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+}
