@@ -86,90 +86,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        let mounted = true;
-        let timeoutId: number;
+        console.log('AuthContext mounted - skipping auto session load');
+        // NO intentar cargar la sesión automáticamente porque se cuelga
+        // La sesión se cargará cuando el usuario haga login
+        setLoading(false);
 
-        const initAuth = async () => {
-            try {
-                console.log('Initializing auth...');
-
-                // Create a timeout promise
-                const timeoutPromise = new Promise((_, reject) => {
-                    timeoutId = setTimeout(() => {
-                        reject(new Error('Auth timeout - Supabase no responde. Verifica tu conexión a internet.'));
-                    }, 10000);
-                });
-
-                // Race between getting session and timeout
-                const sessionPromise = supabase.auth.getSession();
-
-                const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
-                clearTimeout(timeoutId);
-
-                const { data: { session }, error } = result;
-
-                if (error) {
-                    console.error('Error getting session:', error);
-                    if (mounted) setLoading(false);
-                    return;
-                }
-
-                if (!mounted) return;
-
-                console.log('Session retrieved:', session ? 'Active' : 'None');
+        // Escuchar cambios de autenticación
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (_event: any, session: any) => {
+                console.log('Auth state changed:', _event, session ? 'Session active' : 'No session');
                 setSession(session);
                 setUser(session?.user ?? null);
 
                 if (session?.user) {
-                    console.log('Fetching user profile for:', session.user.id);
                     const userProfile = await fetchUserProfile(session.user.id);
-                    if (mounted) {
-                        console.log('User profile loaded:', userProfile);
-                        setProfile(userProfile);
-                    }
-                }
-
-                if (mounted) {
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error('Error initializing auth:', error);
-                clearTimeout(timeoutId);
-                if (mounted) {
-                    setLoading(false);
+                    setProfile(userProfile);
+                } else {
+                    setProfile(null);
                 }
             }
-        };
-
-        initAuth();
-
-        // Escuchar cambios de autenticación
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (!mounted) return;
-
-            setSession(session);
-            setUser(session?.user ?? null);
-
-            if (session?.user) {
-                try {
-                    const userProfile = await fetchUserProfile(session.user.id);
-                    if (mounted) {
-                        setProfile(userProfile);
-                    }
-                } catch (error) {
-                    console.error('Error fetching profile on auth change:', error);
-                }
-            } else {
-                setProfile(null);
-            }
-
-            setLoading(false);
-        });
+        );
 
         return () => {
-            mounted = false;
             subscription.unsubscribe();
         };
     }, []);
