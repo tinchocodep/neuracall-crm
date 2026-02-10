@@ -5,6 +5,7 @@ import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import ProyectosIA from './pages/ProyectosIA';
 import TaskManager from './pages/TaskManager';
+import Clients from './pages/Clients';
 import Login from './pages/Login';
 
 function ComingSoon({ title, description }: { title: string; description: string }) {
@@ -46,10 +47,7 @@ function App() {
               <Route index element={<Navigate to="clients" replace />} />
               <Route
                 path="clients"
-                element={<ComingSoon
-                  title="Clientes"
-                  description="Gestión de empresas que ya son clientes activos de Neuracall"
-                />}
+                element={<Clients />}
               />
               <Route
                 path="contacts"
