@@ -32,7 +32,8 @@ const stats = [
     },
     {
         label: 'Ingresos Mensuales',
-        value: '$128,430',
+        value: '$15,000 USD',
+        subValue: '$16,050,000 ARS',
         change: '+18.2%',
         trend: 'up',
         icon: Wallet,
@@ -208,6 +209,9 @@ export function Dashboard() {
                                 </div>
                             </div>
                             <h3 className="text-3xl font-bold text-foreground tracking-tight">{stat.value}</h3>
+                            {stat.subValue && (
+                                <p className="text-lg font-semibold text-muted-foreground/80 mt-0.5">{stat.subValue}</p>
+                            )}
                             <p className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</p>
 
                             {/* Decorative gradient */}
