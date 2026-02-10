@@ -87,12 +87,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         let mounted = true;
+        let timeoutId: number;
 
         const initAuth = async () => {
             try {
                 console.log('Initializing auth...');
 
-                const { data: { session }, error } = await supabase.auth.getSession();
+                // Create a timeout promise
+                const timeoutPromise = new Promise((_, reject) => {
+                    timeoutId = setTimeout(() => {
+                        reject(new Error('Auth timeout - Supabase no responde. Verifica tu conexión a internet.'));
+                    }, 10000);
+                });
+
+                // Race between getting session and timeout
+                const sessionPromise = supabase.auth.getSession();
+
+                const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+                clearTimeout(timeoutId);
+
+                const { data: { session }, error } = result;
 
                 if (error) {
                     console.error('Error getting session:', error);
@@ -120,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
             } catch (error) {
                 console.error('Error initializing auth:', error);
+                clearTimeout(timeoutId);
                 if (mounted) {
                     setLoading(false);
                 }
