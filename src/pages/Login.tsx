@@ -51,16 +51,16 @@ export default function Login() {
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-blue-600/20 backdrop-blur-xl mb-6 shadow-2xl shadow-blue-500/30 relative group p-4 border border-blue-400/30">
                         <img
-                            src="/neuracall-logo.png"
-                            alt="Neuracall Logo"
+                            src={import.meta.env.VITE_LOGO_URL || '/neuracall-logo.png'}
+                            alt={`${import.meta.env.VITE_APP_NAME || 'Neuracall CRM'} Logo`}
                             className="w-full h-full object-contain relative z-10 drop-shadow-lg"
                         />
                         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/30 to-cyan-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
                     </div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-3">
-                        Neuracall CRM
+                        {import.meta.env.VITE_APP_NAME || 'Neuracall CRM'}
                     </h1>
-                    <p className="text-slate-400 text-lg">Gestiona tu negocio de forma inteligente</p>
+                    <p className="text-slate-400 text-lg">{import.meta.env.VITE_APP_DESCRIPTION || 'Gestiona tu negocio de forma inteligente'}</p>
                 </div>
 
                 <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700/50">
