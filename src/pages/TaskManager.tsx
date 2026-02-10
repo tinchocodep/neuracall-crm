@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Plus, MoreVertical, Calendar, User, Tag, Clock, CheckSquare, MessageSquare, Paperclip } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
+import { Plus, MoreVertical, Calendar, CheckSquare, MessageSquare, Paperclip } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -37,7 +37,7 @@ interface TaskCard {
 
 export default function TaskManager() {
     const { profile } = useAuth();
-    const [boards, setBoards] = useState<Board[]>([]);
+    const [, setBoards] = useState<Board[]>([]);
     const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
     const [lists, setLists] = useState<TaskList[]>([]);
     const [loading, setLoading] = useState(true);
@@ -170,7 +170,7 @@ export default function TaskManager() {
         const list = lists.find(l => l.id === listId);
         if (!list) return;
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('task_cards')
             .insert({
                 list_id: listId,

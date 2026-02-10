@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: data.email,
             full_name: data.full_name,
             tenant_id: tenantUser?.tenant_id || null,
-            tenant_name: tenant?.name || null,
+            tenant_name: (tenant as any)?.name || null,
             role: tenantUser?.role || null,
         };
     };

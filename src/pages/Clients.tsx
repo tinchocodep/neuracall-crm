@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
     Search, Plus, Filter, MoreVertical, Mail, Phone, Building2,
-    MapPin, Tag, Calendar, DollarSign, User, Edit, Trash2, Eye,
-    TrendingUp, Users, Briefcase, Globe
+    MapPin, DollarSign, User,
+    TrendingUp, Users, Briefcase
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -50,8 +50,8 @@ export default function Clients() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [showModal, setShowModal] = useState(false);
+    const [, setSelectedClient] = useState<Client | null>(null);
+    const [, setShowModal] = useState(false);
 
     useEffect(() => {
         if (profile?.tenant_id) {
@@ -245,7 +245,6 @@ export default function Clients() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredClients.map((client) => {
                     const primaryCompany = client.companies?.find(c => c.is_primary) || client.companies?.[0];
-                    const primaryContact = client.contacts?.find(c => c.is_primary) || client.contacts?.[0];
 
                     return (
                         <div
