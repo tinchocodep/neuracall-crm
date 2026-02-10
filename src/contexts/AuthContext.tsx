@@ -90,13 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const initAuth = async () => {
             try {
-                // Timeout de 5 segundos para evitar carga infinita
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Timeout')), 5000)
+                console.log('Initializing auth...');
+
+                // Timeout de 15 segundos para evitar carga infinita
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout')), 15000)
                 );
 
                 const sessionPromise = supabase.auth.getSession();
-                
+
                 const { data: { session } } = await Promise.race([
                     sessionPromise,
                     timeoutPromise
@@ -104,13 +106,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 if (!mounted) return;
 
+                console.log('Session retrieved:', session ? 'Active' : 'None');
                 setSession(session);
                 setUser(session?.user ?? null);
 
                 if (session?.user) {
                     try {
+                        console.log('Fetching user profile for:', session.user.id);
                         const userProfile = await fetchUserProfile(session.user.id);
                         if (mounted) {
+                            console.log('User profile loaded:', userProfile);
                             setProfile(userProfile);
                         }
                     } catch (error) {
@@ -118,9 +123,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         // Continuar sin perfil
                     }
                 }
+
+                if (mounted) {
+                    setLoading(false);
+                }
             } catch (error) {
                 console.error('Error initializing auth:', error);
-            } finally {
                 if (mounted) {
                     setLoading(false);
                 }
@@ -134,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
             if (!mounted) return;
-            
+
             setSession(session);
             setUser(session?.user ?? null);
 
