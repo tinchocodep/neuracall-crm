@@ -43,17 +43,15 @@ export interface ProjectDeployment {
 export interface AIProject {
     id: string;
     tenant_id: string;
-    title: string;
+    name: string;
     description: string | null;
-    client_id: string | null;
+    client_id: string;
     opportunity_id: string | null;
-    status: 'planning' | 'in_progress' | 'testing' | 'deployed' | 'completed' | 'on_hold';
-    tech_stack: string[] | null;
-    estimated_hours: number | null;
-    actual_hours: number | null;
-    budget: number | null;
-    start_date: string | null;
+    status: 'planning' | 'development' | 'testing' | 'deployed' | 'completed';
+    start_date: string;
     end_date: string | null;
+    budget: number | null;
+    team_members: any[] | null;
     created_by: string | null;
     created_at: string;
     updated_at: string;

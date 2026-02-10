@@ -92,7 +92,7 @@ export function TimeTracker({ projectId }: { projectId?: string }) {
                             <option value="">Seleccionar proyecto...</option>
                             {projects.map((project) => (
                                 <option key={project.id} value={project.id}>
-                                    {project.title}
+                                    {project.name}
                                 </option>
                             ))}
                         </select>
@@ -124,7 +124,7 @@ export function TimeTracker({ projectId }: { projectId?: string }) {
                         <div className="p-4 rounded-lg bg-background/50 border border-border/30">
                             <p className="text-sm text-muted-foreground mb-1">Trabajando en:</p>
                             <p className="font-medium text-foreground">
-                                {projects.find(p => p.id === activeEntry.ai_project_id)?.title || 'Proyecto'}
+                                {projects.find(p => p.id === activeEntry.ai_project_id)?.name || 'Proyecto'}
                             </p>
                             {activeEntry.description && (
                                 <p className="text-sm text-muted-foreground mt-2">{activeEntry.description}</p>
@@ -154,7 +154,7 @@ export function TimeTracker({ projectId }: { projectId?: string }) {
                             <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                     <p className="font-medium text-foreground text-sm">
-                                        {projects.find(p => p.id === entry.ai_project_id)?.title || 'Proyecto'}
+                                        {projects.find(p => p.id === entry.ai_project_id)?.name || 'Proyecto'}
                                     </p>
                                     {entry.description && (
                                         <p className="text-xs text-muted-foreground mt-1">{entry.description}</p>

@@ -11,11 +11,10 @@ export default function ProyectosIA() {
     const getStatusColor = (status: string) => {
         const colors = {
             planning: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-            in_progress: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+            development: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
             testing: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
             deployed: 'bg-green-500/10 text-green-400 border-green-500/20',
             completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-            on_hold: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
         };
         return colors[status as keyof typeof colors] || colors.planning;
     };
@@ -23,11 +22,10 @@ export default function ProyectosIA() {
     const getStatusLabel = (status: string) => {
         const labels = {
             planning: 'Planificación',
-            in_progress: 'En Desarrollo',
+            development: 'En Desarrollo',
             testing: 'Testing',
             deployed: 'Deployado',
             completed: 'Completado',
-            on_hold: 'En Pausa',
         };
         return labels[status as keyof typeof labels] || status;
     };
@@ -82,7 +80,7 @@ export default function ProyectosIA() {
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h3 className="text-xl font-bold text-foreground">{project.title}</h3>
+                                            <h3 className="text-xl font-bold text-foreground">{project.name}</h3>
                                             <span className={cn("px-3 py-1 rounded-full text-xs font-medium border", getStatusColor(project.status))}>
                                                 {getStatusLabel(project.status)}
                                             </span>
@@ -94,21 +92,21 @@ export default function ProyectosIA() {
                                 </div>
 
                                 {/* Tech Stack */}
-                                {project.tech_stack && project.tech_stack.length > 0 && (
+                                {project.team_members && project.team_members.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mb-4">
-                                        {project.tech_stack.map((tech, i) => (
+                                        {project.team_members.map((member: any, i: number) => (
                                             <span
                                                 key={i}
                                                 className="px-2 py-1 rounded-md bg-secondary/50 text-xs font-medium text-secondary-foreground"
                                             >
-                                                {tech}
+                                                {member.name || member}
                                             </span>
                                         ))}
                                     </div>
                                 )}
 
                                 {/* Stats */}
-                                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border/30">
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/30">
                                     <div>
                                         <p className="text-xs text-muted-foreground mb-1">Presupuesto</p>
                                         <p className="font-semibold text-foreground">
@@ -116,15 +114,9 @@ export default function ProyectosIA() {
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground mb-1">Horas Est.</p>
-                                        <p className="font-semibold text-foreground">
-                                            {project.estimated_hours || 'N/A'}h
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-muted-foreground mb-1">Horas Real</p>
+                                        <p className="text-xs text-muted-foreground mb-1">Estado</p>
                                         <p className="font-semibold text-blue-400">
-                                            {project.actual_hours || 0}h
+                                            {getStatusLabel(project.status)}
                                         </p>
                                     </div>
                                 </div>
