@@ -54,13 +54,13 @@ export default function Login() {
             <div className="w-full max-w-md relative z-10 px-4">
                 {/* Logo y Header */}
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 mb-6 shadow-2xl shadow-blue-500/50 relative group p-4">
+                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-white mb-6 shadow-2xl shadow-blue-500/50 relative group p-3">
                         <img
-                            src="/neuracall-logo.svg"
+                            src="/neuracall-logo.png"
                             alt="Neuracall Logo"
                             className="w-full h-full object-contain relative z-10"
                         />
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400 to-cyan-400 opacity-0 group-hover:opacity-30 transition-opacity blur-xl"></div>
                     </div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-3">
                         Neuracall CRM
