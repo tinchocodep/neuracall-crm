@@ -52,50 +52,80 @@ const navItems = [
     {
         label: 'Proyectos IA',
         icon: Brain,
-        path: '/ai-projects',
-        description: 'Gestión de proyectos de inteligencia artificial',
-        subItems: [
-            { label: 'En Desarrollo', path: '/ai-projects/active', description: 'Proyectos activos' },
-            { label: 'Completados', path: '/ai-projects/completed', description: 'Proyectos finalizados' },
-        ]
+        path: '/proyectos-ia',
+        description: 'Gestión de proyectos de inteligencia artificial'
     },
     {
-        label: 'Ventas',
+        label: 'Cotizador',
         icon: FileText,
-        path: '/sales',
-        description: 'Cotizaciones y presupuestos',
+        path: '/cotizador',
+        description: 'Sistema de cotizaciones y presupuestos',
         subItems: [
-            { label: 'Cotizador', path: '/sales/quotes', description: 'Generar cotizaciones' },
-            { label: 'Presupuesto', path: '/sales/budget', description: 'Control presupuestario' },
-        ]
-    },
-    {
-        label: 'Operaciones',
-        icon: Briefcase,
-        path: '/operations',
-        description: 'Gestión operativa diaria',
-        subItems: [
-            { label: 'Tareas', path: '/operations/tasks', description: 'Gestión de tareas' },
-            { label: 'Calendario', path: '/operations/calendar', description: 'Agenda y eventos' },
+            {
+                label: 'Cotizaciones',
+                path: '/cotizador/quotes',
+                description: 'Crear y gestionar cotizaciones'
+            },
+            {
+                label: 'Pedidos',
+                path: '/cotizador/orders',
+                description: 'Pedidos confirmados'
+            },
+            {
+                label: 'Remitos',
+                path: '/cotizador/receipts',
+                description: 'Comprobantes de entrega'
+            },
+            {
+                label: 'Cuenta Corriente',
+                path: '/cotizador/current-account',
+                description: 'Estado de cuenta de clientes'
+            },
+            {
+                label: 'Stock',
+                path: '/cotizador/stock',
+                description: 'Inventario de productos'
+            },
         ]
     },
     {
         label: 'Finanzas',
         icon: DollarSign,
-        path: '/finance',
-        description: 'Control financiero y tesorería',
+        path: '/finanzas',
+        description: 'Gestión financiera y tesorera',
         subItems: [
-            { label: 'Tesorería', path: '/finance/treasury', description: 'Flujo de caja' },
-            { label: 'Gastos', path: '/finance/expenses', description: 'Control de gastos' },
-            { label: 'Sueldos', path: '/finance/salaries', description: 'Nómina del equipo' },
-            { label: 'Cajas Chicas', path: '/finance/petty-cash', description: 'Gastos menores' },
+            {
+                label: 'Tesorera',
+                path: '/finanzas/treasury',
+                description: 'Flujo de caja y movimientos'
+            },
+            {
+                label: 'Gastos',
+                path: '/finanzas/expenses',
+                description: 'Control de gastos operativos'
+            },
+            {
+                label: 'Sueldos',
+                path: '/finanzas/salaries',
+                description: 'Gestión de nómina'
+            },
+            {
+                label: 'Caja Chica',
+                path: '/finanzas/petty-cash',
+                description: 'Gastos menores y efectivo'
+            },
+            {
+                label: 'Presupuestos',
+                path: '/finanzas/budgets',
+                description: 'Planificación presupuestaria'
+            },
         ]
-    }
+    },
 ];
 
 export function Sidebar() {
     const [isOpen, setIsOpen] = useState(true);
-    const [expandedItems, setExpandedItems] = useState<string[]>(['CRM']);
+    const [expandedItems, setExpandedItems] = useState<string[]>([]);
     const location = useLocation();
 
     const toggleExpand = (label: string) => {
@@ -113,13 +143,13 @@ export function Sidebar() {
             <div className="p-4 flex items-center justify-between border-b border-white/10 h-16 bg-black/20">
                 <div className={cn("flex items-center gap-3 transition-all overflow-hidden", !isOpen && "w-0 opacity-0")}>
                     <img
-                        src="/neuracall-logo.svg"
-                        alt="Neuracall"
+                        src={import.meta.env.VITE_LOGO_URL || '/neuracall-logo.png'}
+                        alt={import.meta.env.VITE_APP_NAME || 'Neuracall'}
                         className="w-9 h-9 drop-shadow-lg"
                     />
                     <div className="flex flex-col">
                         <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent tracking-tight">
-                            Neuracall
+                            {import.meta.env.VITE_APP_NAME || 'Neuracall'}
                         </span>
                         <span className="text-[10px] text-blue-400/60 font-medium tracking-wider">
                             AI AGENCY
@@ -149,68 +179,88 @@ export function Sidebar() {
                     return (
                         <div key={item.label}>
                             {item.subItems ? (
-                                <div className="flex flex-col gap-1">
+                                <>
                                     <button
-                                        onClick={() => {
-                                            if (!isOpen) setIsOpen(true);
-                                            toggleExpand(item.label);
-                                        }}
+                                        onClick={() => toggleExpand(item.label)}
                                         className={cn(
-                                            "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
+                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative",
                                             isActive
-                                                ? "text-white bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/30"
-                                                : "text-white/60 hover:bg-white/5 hover:text-white",
-                                            !isOpen && "justify-center px-2"
+                                                ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/20"
+                                                : "text-slate-400 hover:text-white hover:bg-white/5"
                                         )}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <item.icon size={20} className={cn("shrink-0 transition-colors", isActive && "text-blue-400")} />
-                                            {isOpen && <span>{item.label}</span>}
-                                        </div>
+                                        <item.icon
+                                            size={20}
+                                            className={cn(
+                                                "transition-all flex-shrink-0",
+                                                isActive && "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                            )}
+                                        />
+                                        <span className={cn(
+                                            "font-medium text-sm transition-all flex-1 text-left",
+                                            !isOpen && "opacity-0 w-0"
+                                        )}>
+                                            {item.label}
+                                        </span>
                                         {isOpen && (
                                             <ChevronDown
                                                 size={16}
-                                                className={cn("transition-transform duration-200 text-white/40", isExpanded ? "rotate-180" : "")}
+                                                className={cn(
+                                                    "transition-transform",
+                                                    isExpanded && "rotate-180"
+                                                )}
                                             />
                                         )}
                                     </button>
-
-                                    {/* Submenu */}
-                                    <div className={cn(
-                                        "grid transition-all duration-300 ease-in-out overflow-hidden",
-                                        isOpen && isExpanded ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
-                                    )}>
-                                        <div className="min-h-0 flex flex-col gap-1 pl-4 border-l-2 border-blue-500/20 ml-6">
-                                            {item.subItems.map((sub) => (
-                                                <NavLink
-                                                    key={sub.path}
-                                                    to={sub.path}
-                                                    className={({ isActive }) => cn(
-                                                        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all relative group/sub",
-                                                        isActive
-                                                            ? "text-blue-400 font-medium bg-blue-500/10 before:absolute before:-left-[17px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-blue-400 before:shadow-lg before:shadow-blue-400/50"
-                                                            : "text-white/50 hover:text-white hover:bg-white/5"
-                                                    )}
-                                                >
-                                                    {sub.label}
-                                                </NavLink>
-                                            ))}
+                                    {isOpen && isExpanded && (
+                                        <div className="ml-8 mt-1 space-y-1">
+                                            {item.subItems.map((subItem) => {
+                                                const isSubActive = location.pathname === subItem.path;
+                                                return (
+                                                    <NavLink
+                                                        key={subItem.path}
+                                                        to={subItem.path}
+                                                        className={cn(
+                                                            "flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm",
+                                                            isSubActive
+                                                                ? "bg-blue-500/10 text-blue-400 font-medium"
+                                                                : "text-slate-400 hover:text-white hover:bg-white/5"
+                                                        )}
+                                                    >
+                                                        <div className={cn(
+                                                            "w-1.5 h-1.5 rounded-full",
+                                                            isSubActive ? "bg-blue-400" : "bg-slate-600"
+                                                        )} />
+                                                        {subItem.label}
+                                                    </NavLink>
+                                                );
+                                            })}
                                         </div>
-                                    </div>
-                                </div>
+                                    )}
+                                </>
                             ) : (
                                 <NavLink
                                     to={item.path}
-                                    className={({ isActive }) => cn(
-                                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
+                                    className={cn(
+                                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative",
                                         isActive
-                                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
-                                            : "text-white/60 hover:bg-white/5 hover:text-white",
-                                        !isOpen && "justify-center px-2"
+                                            ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/20"
+                                            : "text-slate-400 hover:text-white hover:bg-white/5"
                                     )}
                                 >
-                                    <item.icon size={20} className="shrink-0" />
-                                    {isOpen && <span>{item.label}</span>}
+                                    <item.icon
+                                        size={20}
+                                        className={cn(
+                                            "transition-all flex-shrink-0",
+                                            isActive && "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                        )}
+                                    />
+                                    <span className={cn(
+                                        "font-medium text-sm transition-all",
+                                        !isOpen && "opacity-0 w-0"
+                                    )}>
+                                        {item.label}
+                                    </span>
                                 </NavLink>
                             )}
                         </div>
@@ -218,24 +268,22 @@ export function Sidebar() {
                 })}
             </nav>
 
-            {/* User Profile */}
-            <div className="p-4 border-t border-white/10 bg-black/20">
-                <div className={cn("flex items-center gap-3", !isOpen && "justify-center")}>
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30 ring-2 ring-white/20">
-                        MC
-                    </div>
-                    {isOpen && (
-                        <div className="overflow-hidden flex-1">
-                            <p className="text-sm font-semibold truncate text-white">Martin Cabrera</p>
-                            <p className="text-xs text-blue-400/70 truncate">Founder & CEO</p>
-                        </div>
+            {/* Logout Button */}
+            <div className="p-3 border-t border-white/10 bg-black/20">
+                <button
+                    className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-slate-400 hover:text-red-400 hover:bg-red-500/10",
+                        !isOpen && "justify-center"
                     )}
-                    {isOpen && (
-                        <button className="text-white/50 hover:text-red-400 transition-colors">
-                            <LogOut size={18} />
-                        </button>
-                    )}
-                </div>
+                >
+                    <LogOut size={20} className="flex-shrink-0" />
+                    <span className={cn(
+                        "font-medium text-sm transition-all",
+                        !isOpen && "opacity-0 w-0"
+                    )}>
+                        Cerrar Sesión
+                    </span>
+                </button>
             </div>
         </aside>
     );
