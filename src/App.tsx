@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import ProyectosIA from './pages/ProyectosIA';
+import TaskManager from './pages/TaskManager';
 import Login from './pages/Login';
 
 function ComingSoon({ title, description }: { title: string; description: string }) {
@@ -110,10 +111,7 @@ function App() {
               <Route index element={<Navigate to="tasks" replace />} />
               <Route
                 path="tasks"
-                element={<ComingSoon
-                  title="Tareas"
-                  description="Gestión de tareas y asignaciones del equipo"
-                />}
+                element={<TaskManager />}
               />
               <Route
                 path="calendar"
