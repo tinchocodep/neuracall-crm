@@ -110,7 +110,7 @@ export function Sidebar() {
             isOpen ? "w-64" : "w-20"
         )}>
             {/* Logo Header */}
-            <div className="p-4 flex items-center justify-between border-b border-white/10 h-16 bg-black/20 backdrop-blur-sm">
+            <div className="p-4 flex items-center justify-between border-b border-white/10 h-16 bg-black/20">
                 <div className={cn("flex items-center gap-3 transition-all overflow-hidden", !isOpen && "w-0 opacity-0")}>
                     <img
                         src="/neuracall-logo.svg"
@@ -219,7 +219,7 @@ export function Sidebar() {
             </nav>
 
             {/* User Profile */}
-            <div className="p-4 border-t border-white/10 bg-black/20 backdrop-blur-sm">
+            <div className="p-4 border-t border-white/10 bg-black/20">
                 <div className={cn("flex items-center gap-3", !isOpen && "justify-center")}>
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30 ring-2 ring-white/20">
                         MC

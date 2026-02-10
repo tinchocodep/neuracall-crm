@@ -10,7 +10,7 @@ export function TopBar() {
     };
 
     return (
-        <header className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-40 transition-all duration-300">
+        <header className="h-16 border-b border-border/40 bg-background/80 flex items-center justify-between px-6 sticky top-0 z-40 transition-all duration-300">
             <div className="flex items-center gap-4 flex-1">
                 <div className="relative w-96 hidden md:block">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />

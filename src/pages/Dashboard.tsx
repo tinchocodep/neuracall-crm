@@ -114,7 +114,7 @@ const recentActivity = [
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-background/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl">
+            <div className="bg-background/95 border border-border/50 p-3 rounded-xl shadow-xl">
                 <p className="text-sm font-medium mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 text-xs mb-1 last:mb-0">
@@ -172,7 +172,7 @@ export function Dashboard() {
                         transition={{ delay: 0.2 }}
                         className="flex gap-3"
                     >
-                        <button className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors backdrop-blur-sm">
+                        <button className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors">
                             Ver Reportes
                         </button>
                         <button className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-medium transition-all shadow-lg shadow-blue-500/25">
@@ -193,7 +193,7 @@ export function Dashboard() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 + 0.3 }}
-                            className="group relative p-6 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl hover:bg-card/90 transition-all duration-300 hover:scale-[1.02]"
+                            className="group relative p-6 rounded-2xl bg-card/80 border border-border/50 shadow-lg hover:shadow-xl hover:bg-card/90 transition-all duration-300 hover:scale-[1.02]"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className={cn("p-3 rounded-xl transition-all group-hover:scale-110", stat.bg)}>
