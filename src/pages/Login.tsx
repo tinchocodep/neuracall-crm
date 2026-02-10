@@ -56,7 +56,7 @@ export default function Login() {
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-white mb-6 shadow-2xl shadow-blue-500/50 relative group p-3">
                         <img
-                            src="/neuracall-logo.png"
+                            src="/neuracall-logo.jpg"
                             alt="Neuracall Logo"
                             className="w-full h-full object-contain relative z-10"
                         />
