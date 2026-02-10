@@ -3,11 +3,21 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+console.log('Supabase Config:', {
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING',
+    keyLength: supabaseAnonKey?.length || 0
+});
+
 if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables!', {
+        url: !!supabaseUrl,
+        key: !!supabaseAnonKey
+    });
     throw new Error('Missing Supabase environment variables');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+console.log('Supabase client created successfully');
 
 // Types
 export interface TimeEntry {

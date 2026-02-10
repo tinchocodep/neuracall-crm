@@ -92,17 +92,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 console.log('Initializing auth...');
 
-                // Timeout de 15 segundos para evitar carga infinita
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Timeout')), 15000)
-                );
+                const { data: { session }, error } = await supabase.auth.getSession();
 
-                const sessionPromise = supabase.auth.getSession();
-
-                const { data: { session } } = await Promise.race([
-                    sessionPromise,
-                    timeoutPromise
-                ]) as any;
+                if (error) {
+                    console.error('Error getting session:', error);
+                    if (mounted) setLoading(false);
+                    return;
+                }
 
                 if (!mounted) return;
 
@@ -111,16 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(session?.user ?? null);
 
                 if (session?.user) {
-                    try {
-                        console.log('Fetching user profile for:', session.user.id);
-                        const userProfile = await fetchUserProfile(session.user.id);
-                        if (mounted) {
-                            console.log('User profile loaded:', userProfile);
-                            setProfile(userProfile);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching profile:', error);
-                        // Continuar sin perfil
+                    console.log('Fetching user profile for:', session.user.id);
+                    const userProfile = await fetchUserProfile(session.user.id);
+                    if (mounted) {
+                        console.log('User profile loaded:', userProfile);
+                        setProfile(userProfile);
                     }
                 }
 
