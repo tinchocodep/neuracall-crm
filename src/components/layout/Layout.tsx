@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import MobileNav from './MobileNav';
 import TimerBar from '../common/TimerBar';
+import FloatingCalendarButton from '../common/FloatingCalendarButton';
 
 export default function Layout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -43,6 +44,9 @@ export default function Layout() {
                         <MobileNav />
                     </div>
                 </div>
+
+                {/* Floating Calendar Button */}
+                <FloatingCalendarButton />
             </div>
         </div>
     );
