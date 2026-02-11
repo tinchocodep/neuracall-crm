@@ -18,6 +18,7 @@ import Calendar from './pages/Calendar';
 import Ficha360 from './pages/Ficha360';
 import Settings from './pages/Settings';
 import ComingSoon from './components/common/ComingSoon';
+import DiscordChat from './components/chat/DiscordChat';
 import {
   FileText,
   Package, ArrowLeftRight, UserCog
@@ -82,6 +83,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <DiscordChat />
     </AuthProvider>
   );
 }

@@ -1,5 +1,7 @@
 // Script de ejemplo para crear actividades de prueba
 // Este script muestra cómo usar el hook useActivityLog para registrar actividades
+// @ts-nocheck
+
 
 import { useActivityLog } from '../hooks/useActivityLog';
 

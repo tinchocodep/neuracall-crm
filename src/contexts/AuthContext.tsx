@@ -6,6 +6,7 @@ interface UserProfile {
     id: string;
     email: string;
     full_name: string | null;
+    avatar_url: string | null;
     tenant_id: string | null;
     tenant_name: string | null;
     role: string | null;
@@ -49,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     try {
                         // Set a timeout to prevent hanging
-                        const timeoutPromise = new Promise((_, reject) => 
+                        const timeoutPromise = new Promise((_, reject) =>
                             setTimeout(() => reject(new Error('Profile load timeout')), 5000)
                         );
 
@@ -57,6 +58,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             let tenantId = null;
                             let role = null;
                             let tenantName = null;
+                            let avatarUrl = null;
+
+                            // Intentar obtener datos del usuario (avatar)
+                            try {
+                                const { data: userData } = await supabase
+                                    .from('users')
+                                    .select('avatar_url')
+                                    .eq('id', session.user.id)
+                                    .maybeSingle();
+
+                                if (userData) {
+                                    avatarUrl = userData.avatar_url;
+                                }
+                            } catch (err) {
+                                console.error('Error fetching user data:', err);
+                            }
 
                             // Intentar obtener tenant_user con timeout
                             try {
@@ -96,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                                 id: session.user.id,
                                 email: session.user.email || '',
                                 full_name: session.user.user_metadata?.full_name || '',
+                                avatar_url: avatarUrl,
                                 tenant_id: tenantId,
                                 tenant_name: tenantName || null,
                                 role: role,
@@ -104,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                         // Race between loading and timeout
                         const profile = await Promise.race([loadProfilePromise, timeoutPromise]) as UserProfile;
-                        
+
                         console.log('Final profile loaded:', profile);
                         setProfile(profile);
                     } catch (error) {
@@ -114,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             id: session.user.id,
                             email: session.user.email || '',
                             full_name: session.user.user_metadata?.full_name || '',
+                            avatar_url: null,
                             tenant_id: null,
                             tenant_name: null,
                             role: null,
