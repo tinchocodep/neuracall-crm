@@ -49,37 +49,44 @@ export default function Opportunities() {
     const handleDragEnd = async (result: DropResult) => {
         const { destination, source, draggableId } = result;
 
+        // Dropped outside the list
         if (!destination) return;
-        if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-        ) return;
 
-        // Optimistic update
-        const updatedOpportunities = opportunities.map(opp =>
-            opp.id === draggableId
-                ? { ...opp, status: destination.droppableId as any }
-                : opp
-        );
-        setOpportunities(updatedOpportunities);
+        // No movement
+        if (destination.droppableId === source.droppableId) return;
 
-        // API update
+        // Update opportunity status
+        const opportunityId = draggableId;
+        const newStatus = destination.droppableId;
+
         try {
             const { error } = await supabase
                 .from('opportunities')
-                .update({ status: destination.droppableId })
-                .eq('id', draggableId);
+                .update({ status: newStatus })
+                .eq('id', opportunityId);
 
             if (error) throw error;
+
+            // Update local state
+            setOpportunities(prev =>
+                prev.map(opp =>
+                    opp.id === opportunityId ? { ...opp, status: newStatus } : opp
+                )
+            );
         } catch (error) {
-            console.error('Error updating status:', error);
-            // Revert on error
-            fetchOpportunities();
+            console.error('Error updating opportunity:', error);
         }
     };
 
+    const [viewFilter, setViewFilter] = useState<'all' | 'new'>('all');
+
     const getColumnOpportunities = (status: string) => {
-        return opportunities.filter(opp => opp.status === status);
+        const filtered = opportunities.filter(opp => opp.status === status);
+        // If viewing only prospects, only show 'new' column
+        if (viewFilter === 'new' && status !== 'new') {
+            return [];
+        }
+        return filtered;
     };
 
     const getColumnTotal = (status: string) => {
@@ -107,6 +114,30 @@ export default function Opportunities() {
                     <p className="text-slate-400">Gestiona tus oportunidades y cierres</p>
                 </div>
                 <div className="flex gap-3">
+                    {/* Quick Filter Buttons */}
+                    <div className="flex gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1">
+                        <button
+                            onClick={() => setViewFilter('all')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                viewFilter === 'all'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    : 'text-slate-400 hover:text-white'
+                            }`}
+                        >
+                            Todos
+                        </button>
+                        <button
+                            onClick={() => setViewFilter('new')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                viewFilter === 'new'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    : 'text-slate-400 hover:text-white'
+                            }`}
+                        >
+                            Solo Prospectos
+                        </button>
+                    </div>
+                    
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
                         <input
@@ -129,106 +160,102 @@ export default function Opportunities() {
             </div>
 
             {/* Kanban Board */}
-            {loading ? (
-                <div className="flex-1 flex items-center justify-center text-slate-500">
-                    Cargando oportunidades...
-                </div>
-            ) : (
-                <DragDropContext onDragEnd={handleDragEnd}>
-                    <div className="flex-1 overflow-x-auto pb-4">
-                        <div className="flex gap-4 min-w-[1800px] h-full">
-                            {COLUMNS.map(column => {
-                                const columnOpps = getColumnOpportunities(column.id);
-                                const totalValue = getColumnTotal(column.id);
+            <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="flex-1 overflow-x-auto pb-4">
+                    <div className="flex gap-4 h-full min-w-max">
+                        {COLUMNS.map(column => {
+                            const columnOpps = getColumnOpportunities(column.id);
+                            const columnTotal = getColumnTotal(column.id);
 
-                                return (
-                                    <div key={column.id} className="w-80 flex flex-col bg-slate-900/50 rounded-2xl border border-slate-800/50 backdrop-blur-sm h-full max-h-[calc(100vh-200px)]">
-                                        {/* Column Header */}
-                                        <div className="p-4 border-b border-slate-800/50 sticky top-0 bg-slate-900/90 backdrop-blur z-10 rounded-t-2xl">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className={`px-2 py-1 rounded-md text-xs font-bold border ${column.color}`}>
-                                                    {column.title.toUpperCase()}
-                                                </span>
-                                                <span className="text-slate-500 text-xs font-mono">{columnOpps.length}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-slate-300 font-medium">
-                                                <DollarSign size={14} className="text-slate-500" />
-                                                {totalValue.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                            </div>
+                            // Hide empty columns when filtering for prospects only
+                            if (viewFilter === 'new' && column.id !== 'new') {
+                                return null;
+                            }
+
+                            return (
+                                <div key={column.id} className="flex-shrink-0 w-80">
+                                    <div className={`rounded-xl border p-3 mb-3 ${column.color}`}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="font-semibold">{column.title}</h3>
+                                            <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/10">
+                                                {columnOpps.length}
+                                            </span>
                                         </div>
-
-                                        {/* Droppable Area */}
-                                        <Droppable droppableId={column.id}>
-                                            {(provided, snapshot) => (
-                                                <div
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                    className={`flex-1 p-3 space-y-3 overflow-y-auto custom-scrollbar transition-colors ${snapshot.isDraggingOver ? 'bg-slate-800/30' : ''
-                                                        }`}
-                                                >
-                                                    {columnOpps.map((opp, index) => (
-                                                        <Draggable key={opp.id} draggableId={opp.id} index={index}>
-                                                            {(provided, snapshot) => (
-                                                                <div
-                                                                    ref={provided.innerRef}
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
-                                                                    onClick={() => handleEdit(opp)}
-                                                                    className={`bg-slate-800 border border-slate-700/50 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all cursor-pointer group ${snapshot.isDragging ? 'shadow-2xl rotate-2 scale-105 z-50' : ''
-                                                                        }`}
-                                                                    style={provided.draggableProps.style}
-                                                                >
-                                                                    <h4 className="font-medium text-white mb-1 group-hover:text-blue-400 transition-colors line-clamp-2">
-                                                                        {opp.title}
-                                                                    </h4>
-                                                                    <div className="text-sm text-slate-400 mb-3 flex items-center gap-1">
-                                                                        <User size={12} />
-                                                                        {(opp as any).client?.name || 'Cliente sin nombre'}
-                                                                    </div>
-
-                                                                    <div className="flex justify-between items-center text-xs">
-                                                                        <div className="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg">
-                                                                            <DollarSign size={12} />
-                                                                            <span className="font-bold">{Number(opp.value).toLocaleString()}</span>
-                                                                        </div>
-                                                                        {opp.expected_close_date && (
-                                                                            <div className="text-slate-500 flex items-center gap-1">
-                                                                                <Calendar size={12} />
-                                                                                {format(new Date(opp.expected_close_date), 'dd MMM', { locale: es })}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-
-                                                                    {/* Probability Bar */}
-                                                                    <div className="mt-3 h-1 w-full bg-slate-700 rounded-full overflow-hidden">
-                                                                        <div
-                                                                            className={`h-full ${opp.probability > 70 ? 'bg-emerald-500' :
-                                                                                opp.probability > 30 ? 'bg-yellow-500' : 'bg-red-500'
-                                                                                }`}
-                                                                            style={{ width: `${opp.probability}%` }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                </div>
-                                            )}
-                                        </Droppable>
+                                        <p className="text-xs opacity-75">
+                                            ${columnTotal.toLocaleString()}
+                                        </p>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </DragDropContext>
-            )}
 
+                                    <Droppable droppableId={column.id}>
+                                        {(provided: any, snapshot: any) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
+                                                className={`space-y-3 min-h-[200px] p-2 rounded-xl transition-colors ${
+                                                    snapshot.isDraggingOver ? 'bg-slate-800/50' : ''
+                                                }`}
+                                            >
+                                                {columnOpps.map((opp, index) => (
+                                                    <Draggable key={opp.id} draggableId={opp.id} index={index}>
+                                                        {(provided: any, snapshot: any) => (
+                                                            <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                onClick={() => handleEdit(opp)}
+                                                                className={`bg-slate-900 border border-slate-800 rounded-xl p-4 cursor-pointer hover:border-blue-500/50 transition-all ${
+                                                                    snapshot.isDragging ? 'shadow-2xl shadow-blue-500/20 scale-105' : ''
+                                                                }`}
+                                                            >
+                                                                <h4 className="font-medium text-white mb-2 line-clamp-2">
+                                                                    {opp.title}
+                                                                </h4>
+                                                                <div className="space-y-2 text-sm text-slate-400">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <User size={14} />
+                                                                        <span className="truncate">{opp.client?.name || 'Sin cliente'}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <DollarSign size={14} />
+                                                                        <span>${Number(opp.value || 0).toLocaleString()}</span>
+                                                                    </div>
+                                                                    {opp.expected_close_date && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Calendar size={14} />
+                                                                            <span>
+                                                                                {format(new Date(opp.expected_close_date), 'dd MMM yyyy', { locale: es })}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                ))}
+                                                {provided.placeholder}
+                                            </div>
+                                        )}
+                                    </Droppable>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </DragDropContext>
+
+            {/* Modal */}
             <OpportunityModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSuccess={fetchOpportunities}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setEditingOpportunity(null);
+                }}
                 opportunity={editingOpportunity}
+                onSave={() => {
+                    fetchOpportunities();
+                    setIsModalOpen(false);
+                    setEditingOpportunity(null);
+                }}
             />
         </div>
     );
