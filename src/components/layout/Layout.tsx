@@ -28,7 +28,7 @@ export default function Layout() {
 
                 {/* Scrollable Content */}
                 <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 md:pb-0 scroll-smooth">
-                    <div className="h-full w-full">
+                    <div className="h-full w-full p-4 md:p-6 lg:p-8">
                         <Outlet />
                     </div>
                 </main>
