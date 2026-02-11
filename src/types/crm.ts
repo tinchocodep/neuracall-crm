@@ -89,3 +89,18 @@ export interface ContactClient {
     tenant_id: string;
     created_at: string;
 }
+
+export interface TimeEntry {
+    id: string;
+    tenant_id: string;
+    user_id: string;
+    project_id: string | null;
+    task_id: string | null;
+    description: string | null;
+    start_time: string;
+    end_time: string | null;
+    duration_minutes: number | null;
+    is_running: boolean;
+    created_at: string;
+    updated_at: string;
+}

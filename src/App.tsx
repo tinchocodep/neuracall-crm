@@ -10,6 +10,7 @@ import Proposals from './pages/Proposals';
 import Contacts from './pages/Contacts';
 import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
+import TimeTracking from './pages/TimeTracking';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText, Clock, Wallet, Receipt, CreditCard,
@@ -42,7 +43,7 @@ function App() {
             {/* Proyectos */}
             <Route path="/projects" element={<Projects />} />
             <Route path="/tasks" element={<Tasks />} />
-            <Route path="/time-tracking" element={<ComingSoon title="Control de Tiempos" icon={Clock} />} />
+            <Route path="/time-tracking" element={<TimeTracking />} />
 
             {/* Tesorería */}
             <Route path="/transactions" element={<ComingSoon title="Transacciones" icon={Wallet} />} />
