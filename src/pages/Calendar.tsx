@@ -50,14 +50,22 @@ export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [viewMode, setViewMode] = useState<'all' | 'mine'>('mine');
+    const [viewMode, setViewMode] = useState<'all' | 'mine' | 'user'>('mine');
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [users, setUsers] = useState<Array<{ id: string; name: string; email: string }>>([]);
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>(undefined);
 
     useEffect(() => {
+        if (profile && (isFounder || isSupervisor || isAdmin)) {
+            fetchUsers();
+        }
+    }, [profile, isFounder, isSupervisor, isAdmin]);
+
+    useEffect(() => {
         fetchEvents();
-    }, [currentDate, viewMode, profile]);
+    }, [currentDate, viewMode, selectedUserId, profile]);
 
     const fetchEvents = async () => {
         if (!profile) return;
@@ -74,9 +82,11 @@ export default function Calendar() {
                 .lte('start_date', monthEnd.toISOString())
                 .order('start_date', { ascending: true });
 
-            // Filter by user if not viewing all
+            // Filter by user based on view mode
             if (viewMode === 'mine') {
                 query = query.eq('user_id', profile.id);
+            } else if (viewMode === 'user' && selectedUserId) {
+                query = query.eq('user_id', selectedUserId);
             }
 
             const { data, error } = await query;
@@ -85,6 +95,30 @@ export default function Calendar() {
             setEvents(data || []);
         } catch (error) {
             console.error('Error fetching events:', error);
+        }
+    };
+
+    const fetchUsers = async () => {
+        if (!profile) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('usuarios')
+                .select('id, nombre, email')
+                .eq('tenant_id', profile.tenant_id)
+                .order('nombre');
+
+            if (error) throw error;
+
+            const formattedUsers = (data || []).map((u: { id: string; nombre: string; email: string }) => ({
+                id: u.id,
+                name: u.nombre,
+                email: u.email
+            }));
+
+            setUsers(formattedUsers);
+        } catch (error) {
+            console.error('Error fetching users:', error);
         }
     };
 
@@ -144,30 +178,50 @@ export default function Calendar() {
                 <div className="flex items-center gap-3">
                     {/* View Toggle (Only for admin/supervisor) */}
                     {(isFounder || isSupervisor || isAdmin) && (
-                        <div className="flex gap-1 bg-slate-900 rounded-lg p-1">
-                            <button
-                                onClick={() => setViewMode('mine')}
-                                className={cn(
-                                    "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                                    viewMode === 'mine'
-                                        ? "bg-purple-600 text-white"
-                                        : "text-slate-400 hover:text-white"
-                                )}
+                        <>
+                            <div className="flex gap-1 bg-slate-900 rounded-lg p-1">
+                                <button
+                                    onClick={() => { setViewMode('mine'); setSelectedUserId(''); }}
+                                    className={cn(
+                                        "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                                        viewMode === 'mine'
+                                            ? "bg-purple-600 text-white"
+                                            : "text-slate-400 hover:text-white"
+                                    )}
+                                >
+                                    Mis Eventos
+                                </button>
+                                <button
+                                    onClick={() => { setViewMode('all'); setSelectedUserId(''); }}
+                                    className={cn(
+                                        "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                                        viewMode === 'all'
+                                            ? "bg-purple-600 text-white"
+                                            : "text-slate-400 hover:text-white"
+                                    )}
+                                >
+                                    Todos
+                                </button>
+                            </div>
+
+                            {/* User Filter Dropdown */}
+                            <select
+                                value={selectedUserId}
+                                onChange={(e) => {
+                                    const userId = e.target.value;
+                                    setSelectedUserId(userId);
+                                    setViewMode(userId ? 'user' : 'all');
+                                }}
+                                className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
                             >
-                                Mis Eventos
-                            </button>
-                            <button
-                                onClick={() => setViewMode('all')}
-                                className={cn(
-                                    "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                                    viewMode === 'all'
-                                        ? "bg-purple-600 text-white"
-                                        : "text-slate-400 hover:text-white"
-                                )}
-                            >
-                                Todos
-                            </button>
-                        </div>
+                                <option value="">Filtrar por usuario...</option>
+                                {users.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </>
                     )}
 
                     <button

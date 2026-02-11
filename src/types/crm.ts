@@ -237,6 +237,14 @@ export interface CalendarEvent {
     related_task_id: string | null;
     related_invoice_id: string | null;
     related_subscription_id: string | null;
+    // Meeting management fields
+    meeting_url: string | null;
+    notes: string | null;
+    feedback: string | null;
+    related_contact_id: string | null;
+    related_client_id: string | null;
+    completed_at: string | null;
+    completed_by: string | null;
     created_at: string;
     updated_at: string;
     created_by: string | null;
