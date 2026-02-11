@@ -271,6 +271,20 @@ export default function Clients() {
                                 </div>
                             </div>
 
+                            {/* Ficha 360 Button */}
+                            <div className="pt-3 mt-3 border-t border-slate-700/50">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/clients/${client.id}`);
+                                    }}
+                                    className="w-full px-3 py-2 bg-gradient-to-r from-purple-600/20 to-purple-500/20 hover:from-purple-600 hover:to-purple-500 border border-purple-500/30 hover:border-purple-500 text-purple-300 hover:text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 group"
+                                >
+                                    <Eye size={16} className="group-hover:scale-110 transition-transform" />
+                                    Ver Ficha 360°
+                                </button>
+                            </div>
+
                             <div className="pt-3 border-t border-slate-700/50 flex items-center justify-between">
                                 <span className={cn(
                                     "px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider",
