@@ -233,6 +233,10 @@ export interface CalendarEvent {
     attendees: any[];
     is_recurring: boolean;
     recurrence_rule: string | null;
+    // Related entities for automatic event generation
+    related_task_id: string | null;
+    related_invoice_id: string | null;
+    related_subscription_id: string | null;
     created_at: string;
     updated_at: string;
     created_by: string | null;
