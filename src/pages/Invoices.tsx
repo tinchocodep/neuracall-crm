@@ -70,8 +70,8 @@ export default function Invoices() {
 
                     return {
                         ...invoice,
-                        project: projectRes.data,
-                        client: clientRes.data,
+                        project: projectRes.data || undefined,
+                        client: clientRes.data || undefined,
                         payments: paymentsRes.data || []
                     };
                 })
