@@ -13,6 +13,10 @@ export interface Opportunity {
     assigned_to: string | null;
     source: string | null;
     loss_reason: string | null;
+    // Proposal fields
+    setup_fee: number;
+    monthly_fee: number;
+    proposal_pdf_url: string | null;
 }
 
 export interface Project {

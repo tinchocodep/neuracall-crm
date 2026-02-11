@@ -27,6 +27,9 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
         probability: 10,
         expected_close_date: '',
         description: '',
+        setup_fee: 0,
+        monthly_fee: 0,
+        proposal_pdf_url: '',
     });
 
     useEffect(() => {
@@ -41,6 +44,9 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                     probability: opportunity.probability,
                     expected_close_date: opportunity.expected_close_date || '',
                     description: opportunity.description || '',
+                    setup_fee: opportunity.setup_fee || 0,
+                    monthly_fee: opportunity.monthly_fee || 0,
+                    proposal_pdf_url: opportunity.proposal_pdf_url || '',
                 });
             } else {
                 // Reset form for new opportunity
@@ -52,6 +58,9 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                     probability: 10,
                     expected_close_date: '',
                     description: '',
+                    setup_fee: 0,
+                    monthly_fee: 0,
+                    proposal_pdf_url: '',
                 });
             }
             setShowNewClientForm(false);
@@ -75,12 +84,12 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
 
     const createNewClient = async () => {
         if (!newClientName.trim()) return;
-        
+
         setCreatingClient(true);
         try {
             const { data, error } = await supabase
                 .from('clients')
-                .insert([{ 
+                .insert([{
                     name: newClientName.trim(),
                     status: 'prospect' // Marcar como prospecto inicialmente
                 }])
@@ -104,9 +113,10 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        const numericFields = ['value', 'probability', 'setup_fee', 'monthly_fee'];
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'value' || name === 'probability' ? Number(value) : value
+            [name]: numericFields.includes(name) ? Number(value) : value
         }));
     };
 
@@ -193,7 +203,7 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                                     {showNewClientForm ? 'Cancelar' : '+ Nuevo Cliente'}
                                 </button>
                             </div>
-                            
+
                             {showNewClientForm ? (
                                 <div className="space-y-2">
                                     <input
@@ -287,6 +297,50 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                             onChange={handleChange}
                             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
                         />
+                    </div>
+
+                    {/* Proposal Pricing Section */}
+                    <div className="border-t border-slate-800 pt-4 mt-4">
+                        <h3 className="text-sm font-semibold text-slate-300 mb-4">💰 Propuesta Económica</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-300">Fee de Instalación ($)</label>
+                                <input
+                                    type="number"
+                                    name="setup_fee"
+                                    min="0"
+                                    step="0.01"
+                                    value={formData.setup_fee}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-300">Fee Mensual ($)</label>
+                                <input
+                                    type="number"
+                                    name="monthly_fee"
+                                    min="0"
+                                    step="0.01"
+                                    value={formData.monthly_fee}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2 mt-4">
+                            <label className="text-sm font-medium text-slate-300">URL del PDF de Presupuesto</label>
+                            <input
+                                type="url"
+                                name="proposal_pdf_url"
+                                value={formData.proposal_pdf_url}
+                                onChange={handleChange}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                placeholder="https://ejemplo.com/presupuesto.pdf"
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-2">
