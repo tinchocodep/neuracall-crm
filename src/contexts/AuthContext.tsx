@@ -47,55 +47,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (session?.user) {
                     console.log('Loading profile for user:', session.user.email);
 
-
                     try {
-                        let tenantId = null;
-                        let role = null;
-                        let tenantName = null;
+                        // Set a timeout to prevent hanging
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Profile load timeout')), 5000)
+                        );
 
-                        // Intentar obtener tenant_user
-                        const { data: tenantUserData, error: tenantError } = await supabase
-                            .from('tenant_users')
-                            .select('*')
-                            .eq('user_id', session.user.id)
-                            .single();
+                        const loadProfilePromise = (async () => {
+                            let tenantId = null;
+                            let role = null;
+                            let tenantName = null;
 
-                        if (!tenantError && tenantUserData) {
-                            tenantId = tenantUserData.tenant_id;
-                            role = tenantUserData.role;
-                        }
+                            // Intentar obtener tenant_user con timeout
+                            try {
+                                const { data: tenantUserData, error: tenantError } = await supabase
+                                    .from('tenant_users')
+                                    .select('*')
+                                    .eq('user_id', session.user.id)
+                                    .maybeSingle();
 
-                        if (tenantId) {
-                            const { data: tenantData } = await supabase
-                                .from('tenants')
-                                .select('name')
-                                .eq('id', tenantId)
-                                .single();
-                            tenantName = tenantData?.name;
-                        }
+                                if (!tenantError && tenantUserData) {
+                                    tenantId = tenantUserData.tenant_id;
+                                    role = tenantUserData.role;
+                                    console.log('Tenant user data loaded:', { tenantId, role });
+                                } else {
+                                    console.warn('No tenant_user found or error:', tenantError);
+                                }
+                            } catch (err) {
+                                console.error('Error fetching tenant_user:', err);
+                            }
 
-                        const profile = {
-                            id: session.user.id,
-                            email: session.user.email || '',
-                            full_name: session.user.user_metadata?.full_name || '',
-                            tenant_id: tenantId,
-                            tenant_name: tenantName || null,
-                            role: role,
-                        };
+                            // Intentar obtener tenant name
+                            if (tenantId) {
+                                try {
+                                    const { data: tenantData } = await supabase
+                                        .from('tenants')
+                                        .select('name')
+                                        .eq('id', tenantId)
+                                        .maybeSingle();
+                                    tenantName = tenantData?.name;
+                                    console.log('Tenant name loaded:', tenantName);
+                                } catch (err) {
+                                    console.error('Error fetching tenant:', err);
+                                }
+                            }
 
+                            return {
+                                id: session.user.id,
+                                email: session.user.email || '',
+                                full_name: session.user.user_metadata?.full_name || '',
+                                tenant_id: tenantId,
+                                tenant_name: tenantName || null,
+                                role: role,
+                            };
+                        })();
+
+                        // Race between loading and timeout
+                        const profile = await Promise.race([loadProfilePromise, timeoutPromise]) as UserProfile;
+                        
                         console.log('Final profile loaded:', profile);
                         setProfile(profile);
                     } catch (error) {
-                        console.error('Error loading profile:', error);
-                        // Incluso si falla todo, intentamos dar un perfil básico
-                        setProfile({
+                        console.error('Error loading profile (using fallback):', error);
+                        // Fallback: perfil básico con datos del auth
+                        const fallbackProfile = {
                             id: session.user.id,
                             email: session.user.email || '',
                             full_name: session.user.user_metadata?.full_name || '',
                             tenant_id: null,
                             tenant_name: null,
                             role: null,
-                        });
+                        };
+                        console.log('Using fallback profile:', fallbackProfile);
+                        setProfile(fallbackProfile);
                     }
                 } else {
                     setProfile(null);
