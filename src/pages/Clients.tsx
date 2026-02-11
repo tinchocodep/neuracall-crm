@@ -195,20 +195,20 @@ export default function Clients() {
                             key={client.id}
                             className="bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 rounded-xl p-4 transition-all hover:bg-slate-800/80 hover:shadow-lg hover:shadow-blue-900/10 group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full"
                         >
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                            <div className="absolute top-2 right-2 flex gap-1">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         navigate(`/clients/${client.id}`);
                                     }}
-                                    className="p-1.5 hover:bg-purple-600 rounded-lg text-slate-400 hover:text-white"
+                                    className="p-1.5 bg-slate-900/80 hover:bg-purple-600 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700 hover:border-purple-500"
                                     title="Ver Ficha 360"
                                 >
                                     <Eye size={16} />
                                 </button>
                                 <button
                                     onClick={(e) => handleEditClient(client, e)}
-                                    className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white"
+                                    className="p-1.5 bg-slate-900/80 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700"
                                     title="Editar"
                                 >
                                     <Edit size={16} />
@@ -216,7 +216,7 @@ export default function Clients() {
                                 {client.status === 'prospect' && (
                                     <button
                                         onClick={(e) => handleConvertToClient(client, e)}
-                                        className="p-1.5 hover:bg-green-600 rounded-lg text-slate-400 hover:text-white"
+                                        className="p-1.5 bg-slate-900/80 hover:bg-green-600 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700 hover:border-green-500"
                                         title="Convertir a Cliente"
                                     >
                                         <CheckCircle size={16} />
@@ -230,7 +230,14 @@ export default function Clients() {
                                         {client.name?.[0]?.toUpperCase() || '?'}
                                     </div>
                                     <div className="pr-10">
-                                        <h3 className="font-semibold text-base text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1" title={client.name}>
+                                        <h3
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/clients/${client.id}`);
+                                            }}
+                                            className="font-semibold text-base text-slate-100 hover:text-purple-400 transition-colors line-clamp-1 cursor-pointer"
+                                            title={`${client.name} - Click para ver Ficha 360`}
+                                        >
                                             {client.name}
                                         </h3>
                                         {client.company_name && (

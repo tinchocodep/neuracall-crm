@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, Clock, MapPin, Tag, AlertCircle, Link as LinkIcon, Users, Building2, FileText, CheckCircle2 } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Tag, AlertCircle, Link as LinkIcon, Users, Building2, FileText, CheckCircle2, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import type { CalendarEvent } from '../../types/crm';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
+import CreateProspectFromEventModal from './CreateProspectFromEventModal';
+import { useNavigate } from 'react-router-dom';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -43,9 +45,11 @@ const PRIORITIES = [
 
 export default function EventModal({ isOpen, onClose, onSave, event, initialDate }: EventModalProps) {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'details' | 'meeting' | 'feedback'>('details');
+    const [showProspectModal, setShowProspectModal] = useState(false);
 
     // Form state - Basic
     const [title, setTitle] = useState('');
@@ -599,6 +603,23 @@ export default function EventModal({ isOpen, onClose, onSave, event, initialDate
                                     </p>
                                 </div>
                             )}
+
+                            {/* Create Prospect Button */}
+                            {eventType === 'meeting' && !relatedClientId && (
+                                <div className="pt-4 border-t border-slate-700">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowProspectModal(true)}
+                                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+                                    >
+                                        <UserPlus size={18} />
+                                        Crear Prospecto desde esta Reunión
+                                    </button>
+                                    <p className="text-xs text-slate-500 mt-2 text-center">
+                                        Convierte esta reunión en un nuevo prospecto con toda la información pre-cargada
+                                    </p>
+                                </div>
+                            )}
                         </>
                     )}
                 </form>
@@ -621,6 +642,20 @@ export default function EventModal({ isOpen, onClose, onSave, event, initialDate
                     </button>
                 </div>
             </div>
+
+            {/* Create Prospect Modal */}
+            <CreateProspectFromEventModal
+                isOpen={showProspectModal}
+                onClose={() => setShowProspectModal(false)}
+                onSuccess={(prospectId) => {
+                    setShowProspectModal(false);
+                    navigate(`/clients/${prospectId}`);
+                }}
+                eventTitle={title}
+                eventNotes={notes}
+                eventFeedback={feedback}
+                attendees={attendees ? attendees.split(',').map(a => a.trim()) : []}
+            />
         </div>
     );
 }
