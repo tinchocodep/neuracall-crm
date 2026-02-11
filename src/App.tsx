@@ -12,6 +12,7 @@ import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
 import TimeTracking from './pages/TimeTracking';
 import Invoices from './pages/Invoices';
+import Transactions from './pages/Transactions';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText, Wallet, CreditCard,
@@ -47,7 +48,7 @@ function App() {
             <Route path="/time-tracking" element={<TimeTracking />} />
 
             {/* Tesorería */}
-            <Route path="/transactions" element={<ComingSoon title="Transacciones" icon={Wallet} />} />
+            <Route path="/transactions" element={<Transactions />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/expenses" element={<ComingSoon title="Gastos" icon={CreditCard} />} />
 
