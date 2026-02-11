@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Subscription, Expense, ExpenseAllocation } from '../types/crm';
+import SubscriptionModal from '../components/expenses/SubscriptionModal';
+import AllocationModal from '../components/expenses/AllocationModal';
 
 interface SubscriptionWithAllocations extends Subscription {
     allocations?: ExpenseAllocation[];
@@ -47,6 +49,9 @@ export default function Expenses() {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('active');
     const [viewMode, setViewMode] = useState<'subscriptions' | 'expenses' | 'projects'>('subscriptions');
+    const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+    const [allocationModalOpen, setAllocationModalOpen] = useState(false);
+    const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>();
 
     useEffect(() => {
         fetchData();
@@ -267,7 +272,7 @@ export default function Expenses() {
 
                 <div className="flex gap-2">
                     <button
-                        onClick={() => {/* TODO: Open subscription modal */ }}
+                        onClick={() => { setSelectedSubscription(undefined); setSubscriptionModalOpen(true); }}
                         className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-6 py-3 rounded-xl font-semibold shadow-xl shadow-purple-500/30 transition-all duration-300 active:scale-95"
                     >
                         <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
@@ -507,11 +512,17 @@ export default function Expenses() {
 
                                         {/* Actions */}
                                         <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm">
+                                            <button
+                                                onClick={() => { setSelectedSubscription(subscription); setAllocationModalOpen(true); }}
+                                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm"
+                                            >
                                                 <Eye size={16} />
                                                 Ver Distribución
                                             </button>
-                                            <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm">
+                                            <button
+                                                onClick={() => { setSelectedSubscription(subscription); setSubscriptionModalOpen(true); }}
+                                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm"
+                                            >
                                                 <Edit size={16} />
                                                 Editar
                                             </button>
@@ -617,6 +628,23 @@ export default function Expenses() {
                     </div>
                 )}
             </div>
+
+            {/* Modals */}
+            <SubscriptionModal
+                isOpen={subscriptionModalOpen}
+                onClose={() => { setSubscriptionModalOpen(false); setSelectedSubscription(undefined); }}
+                subscription={selectedSubscription}
+                onSave={fetchData}
+            />
+
+            {selectedSubscription && (
+                <AllocationModal
+                    isOpen={allocationModalOpen}
+                    onClose={() => { setAllocationModalOpen(false); setSelectedSubscription(undefined); }}
+                    subscription={selectedSubscription}
+                    onSave={fetchData}
+                />
+            )}
         </div>
     );
 }
