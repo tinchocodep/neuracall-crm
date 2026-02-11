@@ -39,18 +39,18 @@ export interface Project {
 
 export interface Task {
     id: string;
-    created_at: string;
+    tenant_id: string;
     title: string;
     description: string | null;
     status: 'todo' | 'in_progress' | 'review' | 'done';
     priority: 'low' | 'medium' | 'high' | 'critical';
-    type: 'feature' | 'bug' | 'maintenance' | 'meeting';
-    due_date: string | null;
-    project_id: string | null;
-    client_id: string | null;
     assigned_to: string | null;
+    due_date: string | null;
+    related_to_type: 'project' | 'client' | 'opportunity' | null;
+    related_to_id: string | null;
     created_by: string | null;
-    tenant_id: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Transaction {
