@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { Opportunity } from '../../types/crm';
-import { useAuth } from '../../contexts/AuthContext';
 
 interface OpportunityModalProps {
     isOpen: boolean;
@@ -13,7 +12,6 @@ interface OpportunityModalProps {
 }
 
 export default function OpportunityModal({ isOpen, onClose, onSuccess, opportunity }: OpportunityModalProps) {
-    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [clients, setClients] = useState<{ id: string, name: string }[]>([]);

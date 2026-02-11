@@ -22,7 +22,6 @@ const COLUMNS = [
 
 export default function Opportunities() {
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingOpportunity, setEditingOpportunity] = useState<Opportunity | null>(null);
 
@@ -41,8 +40,6 @@ export default function Opportunities() {
             setOpportunities(data || []);
         } catch (error) {
             console.error('Error fetching opportunities:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -213,7 +210,7 @@ export default function Opportunities() {
                                                                 <div className="space-y-2 text-sm text-slate-400">
                                                                     <div className="flex items-center gap-2">
                                                                         <User size={14} />
-                                                                        <span className="truncate">{opp.client?.name || 'Sin cliente'}</span>
+                                                                        <span className="truncate">{(opp as any).client?.name || 'Sin cliente'}</span>
                                                                     </div>
                                                                     <div className="flex items-center gap-2">
                                                                         <DollarSign size={14} />
@@ -251,7 +248,7 @@ export default function Opportunities() {
                     setEditingOpportunity(null);
                 }}
                 opportunity={editingOpportunity}
-                onSave={() => {
+                onSuccess={() => {
                     fetchOpportunities();
                     setIsModalOpen(false);
                     setEditingOpportunity(null);
