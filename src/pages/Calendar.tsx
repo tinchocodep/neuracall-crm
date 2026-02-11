@@ -3,13 +3,16 @@ import {
     Calendar as CalendarIcon,
     ChevronLeft,
     ChevronRight,
+    Plus,
     X,
     Clock,
     MapPin,
     CheckCircle2,
     Circle,
     XCircle,
-    Filter
+    Filter,
+    Edit,
+    Trash2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -30,6 +33,7 @@ import {
     endOfWeek
 } from 'date-fns';
 import { es } from 'date-fns/locale';
+import EventModal from '../components/calendar/EventModal';
 
 const EVENT_COLORS = {
     task: { bg: 'bg-blue-500/20', border: 'border-blue-500', text: 'text-blue-400', dot: 'bg-blue-500' },
@@ -48,6 +52,8 @@ export default function Calendar() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [viewMode, setViewMode] = useState<'all' | 'mine'>('mine');
     const [typeFilter, setTypeFilter] = useState<string>('all');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>(undefined);
 
     useEffect(() => {
         fetchEvents();
@@ -105,6 +111,25 @@ export default function Calendar() {
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const goToToday = () => setCurrentDate(new Date());
 
+    const handleDeleteEvent = async (eventId: string) => {
+        if (!confirm('¿Estás seguro de que deseas eliminar este evento?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('calendar_events')
+                .delete()
+                .eq('id', eventId);
+
+            if (error) throw error;
+
+            // Refresh events
+            fetchEvents();
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            alert('Error al eliminar el evento');
+        }
+    };
+
     const days = getCalendarDays();
 
     return (
@@ -144,6 +169,14 @@ export default function Calendar() {
                             </button>
                         </div>
                     )}
+
+                    <button
+                        onClick={() => { setSelectedEvent(undefined); setModalOpen(true); }}
+                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        Nuevo Evento
+                    </button>
 
                     <button
                         onClick={goToToday}
@@ -332,6 +365,22 @@ export default function Calendar() {
                                                 {event.status === 'completed' && <CheckCircle2 size={20} className="text-emerald-400" />}
                                                 {event.status === 'pending' && <Circle size={20} className="text-slate-400" />}
                                                 {event.status === 'cancelled' && <XCircle size={20} className="text-red-400" />}
+
+                                                {/* Action Buttons */}
+                                                <button
+                                                    onClick={() => { setSelectedEvent(event); setModalOpen(true); }}
+                                                    className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-blue-400"
+                                                    title="Editar evento"
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteEvent(event.id)}
+                                                    className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-red-400"
+                                                    title="Eliminar evento"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -356,6 +405,15 @@ export default function Calendar() {
                     ))}
                 </div>
             </div>
+
+            {/* Event Modal */}
+            <EventModal
+                isOpen={modalOpen}
+                onClose={() => { setModalOpen(false); setSelectedEvent(undefined); }}
+                onSave={() => { fetchEvents(); setModalOpen(false); setSelectedEvent(undefined); }}
+                event={selectedEvent}
+                initialDate={selectedDate || undefined}
+            />
         </div>
     );
 }
