@@ -14,6 +14,7 @@ import TimeTracking from './pages/TimeTracking';
 import Invoices from './pages/Invoices';
 import Transactions from './pages/Transactions';
 import Expenses from './pages/Expenses';
+import Calendar from './pages/Calendar';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText,
@@ -52,6 +53,9 @@ function App() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/expenses" element={<Expenses />} />
+
+            {/* Calendario */}
+            <Route path="/calendar" element={<Calendar />} />
 
             {/* Inventario */}
             <Route path="/inventory" element={<ComingSoon title="Inventario de Productos" icon={Package} />} />

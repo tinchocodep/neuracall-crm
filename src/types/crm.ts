@@ -211,3 +211,30 @@ export interface ExpenseAllocation {
     updated_at: string;
     created_by: string | null;
 }
+
+export interface CalendarEvent {
+    id: string;
+    tenant_id: string;
+    title: string;
+    description: string | null;
+    event_type: "task" | "meeting" | "deadline" | "invoice_due" | "subscription_billing" | "other";
+    start_date: string;
+    end_date: string | null;
+    all_day: boolean;
+    user_id: string | null;
+    project_id: string | null;
+    client_id: string | null;
+    task_id: string | null;
+    invoice_id: string | null;
+    subscription_id: string | null;
+    status: "pending" | "completed" | "cancelled";
+    priority: "low" | "medium" | "high" | "urgent";
+    location: string | null;
+    attendees: any[];
+    is_recurring: boolean;
+    recurrence_rule: string | null;
+    created_at: string;
+    updated_at: string;
+    created_by: string | null;
+}
+
