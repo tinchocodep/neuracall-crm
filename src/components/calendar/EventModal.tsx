@@ -7,6 +7,8 @@ import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
 import CreateProspectFromEventModal from './CreateProspectFromEventModal';
 import { useNavigate } from 'react-router-dom';
+import { useActivityLog } from '../../hooks/useActivityLog';
+import { discordService } from '../../services/discord';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -44,7 +46,8 @@ const PRIORITIES = [
 ];
 
 export default function EventModal({ isOpen, onClose, onSave, event, initialDate }: EventModalProps) {
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
+    const { logActivity } = useActivityLog();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -193,6 +196,15 @@ export default function EventModal({ isOpen, onClose, onSave, event, initialDate
                 } : {})
             };
 
+            let eventId = event?.id;
+            let clientName = '';
+
+            // Get client name for notifications
+            if (relatedClientId) {
+                const client = clients.find(c => c.id === relatedClientId);
+                clientName = client?.name || '';
+            }
+
             if (event) {
                 // Update existing event
                 const { error: updateError } = await supabase
@@ -201,13 +213,61 @@ export default function EventModal({ isOpen, onClose, onSave, event, initialDate
                     .eq('id', event.id);
 
                 if (updateError) throw updateError;
+
+                // Log meeting completion if status changed to completed
+                if (eventType === 'meeting' && event.status !== 'completed' && eventStatus === 'completed') {
+                    await logActivity({
+                        activityType: 'meeting_completed',
+                        title: `Reunión "${title}" completada`,
+                        description: feedback || 'La reunión ha sido marcada como completada',
+                        clientId: relatedClientId || undefined,
+                        relatedToType: 'event',
+                        relatedToId: event.id,
+                        metadata: {
+                            event_type: eventType,
+                            location: location || null,
+                            attendees: attendeesArray
+                        }
+                    });
+                }
             } else {
                 // Create new event
-                const { error: insertError } = await supabase
+                const { data, error: insertError } = await supabase
                     .from('calendar_events')
-                    .insert([eventData]);
+                    .insert([eventData])
+                    .select()
+                    .single();
 
                 if (insertError) throw insertError;
+                eventId = data?.id;
+
+                // Log meeting scheduled if it's a meeting type
+                if (eventType === 'meeting') {
+                    await logActivity({
+                        activityType: 'meeting_scheduled',
+                        title: `Reunión "${title}" programada`,
+                        description: `Reunión programada para ${format(new Date(startDateTime), 'dd/MM/yyyy HH:mm')}`,
+                        clientId: relatedClientId || undefined,
+                        relatedToType: 'event',
+                        relatedToId: eventId,
+                        metadata: {
+                            event_type: eventType,
+                            start_date: startDateTime,
+                            location: location || null,
+                            attendees: attendeesArray
+                        }
+                    });
+
+                    // Send Discord notification for new meeting
+                    if (user && profile && relatedClientId) {
+                        await discordService.notifyMeetingScheduled(
+                            title,
+                            clientName,
+                            startDateTime,
+                            profile.full_name || user.email || 'Usuario'
+                        );
+                    }
+                }
             }
 
             onSave();
