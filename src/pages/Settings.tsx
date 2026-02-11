@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Users, Mail, Shield, Save, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Building2, Users, Mail, Shield, Save, CheckCircle2, AlertCircle, Plus, Edit, Phone, MapPin, Briefcase, ToggleLeft, ToggleRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
+import AvatarUpload from '../components/settings/AvatarUpload';
+import UserFormModal from '../components/settings/UserFormModal';
 
 interface TenantUser {
     id: string;
     user_id: string;
     tenant_id: string;
     role: string;
+    is_active: boolean;
     email: string;
     full_name: string | null;
+    phone: string | null;
+    position: string | null;
+    location: string | null;
+    avatar_url: string | null;
 }
 
 type TabType = 'profile' | 'company' | 'users';
@@ -25,6 +32,10 @@ export default function Settings() {
 
     // Profile state
     const [fullName, setFullName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [position, setPosition] = useState('');
+    const [location, setLocation] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     // Company state
     const [companyName, setCompanyName] = useState('');
@@ -32,16 +43,42 @@ export default function Settings() {
 
     // Users state
     const [tenantUsers, setTenantUsers] = useState<TenantUser[]>([]);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [editingUserId, setEditingUserId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (user) {
-            setFullName(user.user_metadata?.full_name || user.email || '');
+            loadUserProfile();
         }
         if (profile?.tenant_id) {
             fetchTenantData();
             fetchTenantUsers();
         }
     }, [user, profile]);
+
+    const loadUserProfile = async () => {
+        if (!user) return;
+
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            if (data) {
+                setFullName(data.full_name || '');
+                setPhone(data.phone || '');
+                setPosition(data.position || '');
+                setLocation(data.location || '');
+                setAvatarUrl(data.avatar_url);
+            }
+        } catch (err: any) {
+            console.error('Error loading profile:', err);
+        }
+    };
 
     const fetchTenantData = async () => {
         if (!profile?.tenant_id) return;
@@ -75,9 +112,14 @@ export default function Settings() {
                     user_id,
                     tenant_id,
                     role,
+                    is_active,
                     users:user_id (
                         email,
-                        full_name
+                        full_name,
+                        phone,
+                        position,
+                        location,
+                        avatar_url
                     )
                 `)
                 .eq('tenant_id', profile.tenant_id);
@@ -90,8 +132,13 @@ export default function Settings() {
                     user_id: tu.user_id,
                     tenant_id: tu.tenant_id,
                     role: tu.role,
+                    is_active: tu.is_active ?? true,
                     email: tu.users?.email || '',
-                    full_name: tu.users?.full_name || null
+                    full_name: tu.users?.full_name || null,
+                    phone: tu.users?.phone || null,
+                    position: tu.users?.position || null,
+                    location: tu.users?.location || null,
+                    avatar_url: tu.users?.avatar_url || null
                 }));
                 setTenantUsers(formattedUsers);
             }
@@ -113,6 +160,9 @@ export default function Settings() {
                 .from('users')
                 .update({
                     full_name: fullName,
+                    phone: phone,
+                    position: position,
+                    location: location,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', user.id);
@@ -157,6 +207,43 @@ export default function Settings() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
+        if (!profile?.tenant_id) return;
+
+        try {
+            const { error: updateError } = await supabase
+                .from('tenant_users')
+                .update({ is_active: !currentStatus })
+                .eq('user_id', userId)
+                .eq('tenant_id', profile.tenant_id);
+
+            if (updateError) throw updateError;
+
+            await fetchTenantUsers();
+            setSuccess(`Usuario ${!currentStatus ? 'activado' : 'desactivado'} exitosamente`);
+            setTimeout(() => setSuccess(null), 3000);
+        } catch (err: any) {
+            console.error('Error toggling user status:', err);
+            setError(err.message || 'Error al cambiar el estado del usuario');
+        }
+    };
+
+    const handleOpenUserModal = (userId?: string) => {
+        setEditingUserId(userId);
+        setIsUserModalOpen(true);
+    };
+
+    const handleCloseUserModal = () => {
+        setIsUserModalOpen(false);
+        setEditingUserId(undefined);
+    };
+
+    const handleUserFormSuccess = () => {
+        fetchTenantUsers();
+        setSuccess(editingUserId ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente');
+        setTimeout(() => setSuccess(null), 3000);
     };
 
     const tabs = [
@@ -227,19 +314,14 @@ export default function Settings() {
                     {/* Tab Content */}
                     <div className="p-6">
                         {/* Profile Tab */}
-                        {activeTab === 'profile' && (
+                        {activeTab === 'profile' && user && (
                             <div className="max-w-2xl">
-                                <div className="mb-8 flex items-center gap-6">
-                                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-800 shadow-lg">
-                                        {fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white">{fullName || 'Sin nombre'}</h3>
-                                        <p className="text-slate-400">{user?.email}</p>
-                                        <p className="text-sm text-purple-400 mt-1 capitalize">
-                                            {getRoleLabel(profile?.role || 'member').label}
-                                        </p>
-                                    </div>
+                                <div className="mb-8">
+                                    <AvatarUpload
+                                        userId={user.id}
+                                        currentAvatarUrl={avatarUrl}
+                                        onAvatarUpdate={(url) => setAvatarUrl(url)}
+                                    />
                                 </div>
 
                                 <form onSubmit={handleUpdateProfile} className="space-y-6">
@@ -270,6 +352,45 @@ export default function Settings() {
                                         <p className="text-xs text-slate-500 mt-1">
                                             El email no puede ser modificado
                                         </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            <Phone size={16} className="inline mr-1" />
+                                            Teléfono
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            <Briefcase size={16} className="inline mr-1" />
+                                            Cargo
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={position}
+                                            onChange={(e) => setPosition(e.target.value)}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            <MapPin size={16} className="inline mr-1" />
+                                            Ubicación
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={location}
+                                            onChange={(e) => setLocation(e.target.value)}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                        />
                                     </div>
 
                                     <div className="flex items-center justify-end pt-6 border-t border-slate-700">
@@ -359,13 +480,22 @@ export default function Settings() {
                         )}
 
                         {/* Users Tab */}
-                        {activeTab === 'users' && (isFounder || isAdmin) && (
-                            <div className="max-w-4xl">
-                                <div className="mb-6">
-                                    <h3 className="text-xl font-bold text-white">Usuarios del Sistema</h3>
-                                    <p className="text-sm text-slate-400 mt-1">
-                                        {tenantUsers.length} usuario{tenantUsers.length !== 1 ? 's' : ''} registrado{tenantUsers.length !== 1 ? 's' : ''}
-                                    </p>
+                        {activeTab === 'users' && (isFounder || isAdmin) && profile?.tenant_id && (
+                            <div className="max-w-6xl">
+                                <div className="mb-6 flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white">Usuarios del Sistema</h3>
+                                        <p className="text-sm text-slate-400 mt-1">
+                                            {tenantUsers.length} usuario{tenantUsers.length !== 1 ? 's' : ''} registrado{tenantUsers.length !== 1 ? 's' : ''}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleOpenUserModal()}
+                                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
+                                    >
+                                        <Plus size={20} />
+                                        Nuevo Usuario
+                                    </button>
                                 </div>
 
                                 <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
@@ -376,7 +506,16 @@ export default function Settings() {
                                                     Usuario
                                                 </th>
                                                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                                                    Contacto
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                                                     Rol
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                                                    Estado
+                                                </th>
+                                                <th className="px-6 py-4 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
+                                                    Acciones
                                                 </th>
                                             </tr>
                                         </thead>
@@ -387,13 +526,39 @@ export default function Settings() {
                                                     <tr key={tenantUser.id} className="hover:bg-slate-800/50 transition-colors">
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                                                                    {tenantUser.full_name?.[0]?.toUpperCase() || tenantUser.email?.[0]?.toUpperCase() || '?'}
+                                                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                                    {tenantUser.avatar_url ? (
+                                                                        <img src={tenantUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        tenantUser.full_name?.[0]?.toUpperCase() || tenantUser.email?.[0]?.toUpperCase() || '?'
+                                                                    )}
                                                                 </div>
                                                                 <div>
                                                                     <div className="font-medium text-white">{tenantUser.full_name || 'Sin nombre'}</div>
                                                                     <div className="text-sm text-slate-400">{tenantUser.email}</div>
                                                                 </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="text-sm space-y-1">
+                                                                {tenantUser.phone && (
+                                                                    <div className="flex items-center gap-1 text-slate-300">
+                                                                        <Phone size={14} />
+                                                                        {tenantUser.phone}
+                                                                    </div>
+                                                                )}
+                                                                {tenantUser.position && (
+                                                                    <div className="flex items-center gap-1 text-slate-400">
+                                                                        <Briefcase size={14} />
+                                                                        {tenantUser.position}
+                                                                    </div>
+                                                                )}
+                                                                {tenantUser.location && (
+                                                                    <div className="flex items-center gap-1 text-slate-400">
+                                                                        <MapPin size={14} />
+                                                                        {tenantUser.location}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
@@ -403,6 +568,33 @@ export default function Settings() {
                                                                     {roleInfo.label}
                                                                 </span>
                                                             </div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <button
+                                                                onClick={() => handleToggleUserStatus(tenantUser.user_id, tenantUser.is_active)}
+                                                                className="flex items-center gap-2 group"
+                                                            >
+                                                                {tenantUser.is_active ? (
+                                                                    <>
+                                                                        <ToggleRight size={24} className="text-emerald-400 group-hover:text-emerald-300" />
+                                                                        <span className="text-sm text-emerald-400 group-hover:text-emerald-300">Activo</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <ToggleLeft size={24} className="text-slate-500 group-hover:text-slate-400" />
+                                                                        <span className="text-sm text-slate-500 group-hover:text-slate-400">Inactivo</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <button
+                                                                onClick={() => handleOpenUserModal(tenantUser.user_id)}
+                                                                className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+                                                                title="Editar usuario"
+                                                            >
+                                                                <Edit size={18} />
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 );
@@ -416,18 +608,22 @@ export default function Settings() {
                                         </div>
                                     )}
                                 </div>
-
-                                <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                    <p className="text-sm text-blue-400">
-                                        <strong>Nota:</strong> Para agregar nuevos usuarios, deben registrarse a través del sistema de autenticación de Supabase.
-                                        Contacta al administrador del sistema para más información.
-                                    </p>
-                                </div>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {/* User Form Modal */}
+            {profile?.tenant_id && (
+                <UserFormModal
+                    isOpen={isUserModalOpen}
+                    onClose={handleCloseUserModal}
+                    onSuccess={handleUserFormSuccess}
+                    tenantId={profile.tenant_id}
+                    userId={editingUserId}
+                />
+            )}
         </div>
     );
 }
