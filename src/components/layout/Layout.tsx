@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import MobileNav from './MobileNav';
+import TimerBar from '../common/TimerBar';
 
 export default function Layout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -23,6 +24,9 @@ export default function Layout() {
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+                {/* Timer Bar */}
+                <TimerBar />
+
                 {/* TopBar (Header) */}
                 <TopBar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
 
