@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     Wallet,
     Building2,
@@ -5,7 +6,9 @@ import {
     MoreHorizontal,
     Brain,
     Zap,
-    Code
+    Code,
+    Eye,
+    EyeOff
 } from 'lucide-react';
 import {
     AreaChart,
@@ -18,6 +21,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
+import { usePermissions } from '../hooks/usePermissions';
 
 const stats = [
     {
@@ -133,6 +137,22 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function Dashboard() {
+    const { canViewFinancials, isFounder } = usePermissions();
+    const [showFinancials, setShowFinancials] = useState(true);
+
+    // Filter stats based on permissions and showFinancials toggle
+    const visibleStats = stats.filter(stat => {
+        // Regular users can't see financial data
+        if (!canViewFinancials && stat.label === 'Ingresos Mensuales') {
+            return false;
+        }
+        // Founder can toggle financial visibility
+        if (isFounder && !showFinancials && stat.label === 'Ingresos Mensuales') {
+            return false;
+        }
+        return true;
+    });
+
     return (
         <div className="min-h-full bg-muted/5 pb-12">
             {/* Hero Header con branding Neuracall */}
@@ -173,6 +193,17 @@ export function Dashboard() {
                         transition={{ delay: 0.2 }}
                         className="flex gap-3"
                     >
+                        {/* Eye Toggle Button (Only for Founder) */}
+                        {isFounder && canViewFinancials && (
+                            <button
+                                onClick={() => setShowFinancials(!showFinancials)}
+                                className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors flex items-center gap-2"
+                                title={showFinancials ? "Ocultar datos financieros" : "Mostrar datos financieros"}
+                            >
+                                {showFinancials ? <Eye size={16} /> : <EyeOff size={16} />}
+                                {showFinancials ? 'Ocultar $' : 'Mostrar $'}
+                            </button>
+                        )}
                         <button className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors">
                             Ver Reportes
                         </button>
@@ -188,7 +219,7 @@ export function Dashboard() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat, index) => (
+                    {visibleStats.map((stat, index) => (
                         <motion.div
                             key={stat.label}
                             initial={{ opacity: 0, y: 20 }}
