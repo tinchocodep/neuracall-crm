@@ -158,3 +158,56 @@ export interface UserEarning {
     created_at: string;
     updated_at: string;
 }
+
+export interface Subscription {
+    id: string;
+    tenant_id: string;
+    name: string;
+    description: string | null;
+    category: 'ai_engine' | 'infrastructure' | 'software' | 'other';
+    provider: string | null;
+    amount: number;
+    currency: string;
+    billing_frequency: 'monthly' | 'annual' | 'quarterly';
+    status: 'active' | 'paused' | 'cancelled';
+    start_date: string;
+    end_date: string | null;
+    next_billing_date: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    created_by: string | null;
+}
+
+export interface Expense {
+    id: string;
+    tenant_id: string;
+    subscription_id: string | null;
+    name: string;
+    description: string | null;
+    category: string;
+    amount: number;
+    currency: string;
+    expense_date: string;
+    status: 'pending' | 'approved' | 'paid';
+    payment_method: string | null;
+    reference_number: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    created_by: string | null;
+}
+
+export interface ExpenseAllocation {
+    id: string;
+    tenant_id: string;
+    expense_id: string | null;
+    subscription_id: string | null;
+    project_id: string;
+    allocation_percentage: number;
+    allocated_amount: number;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    created_by: string | null;
+}

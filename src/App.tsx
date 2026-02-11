@@ -13,9 +13,10 @@ import Tasks from './pages/Tasks';
 import TimeTracking from './pages/TimeTracking';
 import Invoices from './pages/Invoices';
 import Transactions from './pages/Transactions';
+import Expenses from './pages/Expenses';
 import ComingSoon from './components/common/ComingSoon';
 import {
-  FileText, Wallet, CreditCard,
+  FileText,
   Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
 } from 'lucide-react';
 
@@ -50,7 +51,7 @@ function App() {
             {/* Tesorería */}
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/invoices" element={<Invoices />} />
-            <Route path="/expenses" element={<ComingSoon title="Gastos" icon={CreditCard} />} />
+            <Route path="/expenses" element={<Expenses />} />
 
             {/* Inventario */}
             <Route path="/inventory" element={<ComingSoon title="Inventario de Productos" icon={Package} />} />
