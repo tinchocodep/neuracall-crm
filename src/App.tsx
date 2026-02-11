@@ -11,9 +11,10 @@ import Contacts from './pages/Contacts';
 import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
 import TimeTracking from './pages/TimeTracking';
+import Invoices from './pages/Invoices';
 import ComingSoon from './components/common/ComingSoon';
 import {
-  FileText, Wallet, Receipt, CreditCard,
+  FileText, Wallet, CreditCard,
   Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
 } from 'lucide-react';
 
@@ -47,7 +48,7 @@ function App() {
 
             {/* Tesorería */}
             <Route path="/transactions" element={<ComingSoon title="Transacciones" icon={Wallet} />} />
-            <Route path="/invoices" element={<ComingSoon title="Facturación" icon={Receipt} />} />
+            <Route path="/invoices" element={<Invoices />} />
             <Route path="/expenses" element={<ComingSoon title="Gastos" icon={CreditCard} />} />
 
             {/* Inventario */}
