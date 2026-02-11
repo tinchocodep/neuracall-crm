@@ -11,7 +11,7 @@ import Contacts from './pages/Contacts';
 import Projects from './pages/Projects';
 import ComingSoon from './components/common/ComingSoon';
 import {
-  FileText, Building2, Clock, Wallet, Receipt, CreditCard,
+  FileText, Clock, Wallet, Receipt, CreditCard,
   Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
 } from 'lucide-react';
 
