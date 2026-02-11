@@ -6,6 +6,7 @@ import { Dashboard } from './pages/Dashboard';
 import Clients from './pages/Clients';
 import Login from './pages/Login';
 import Opportunities from './pages/Opportunities';
+import Proposals from './pages/Proposals';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText, Building2, Clock, Wallet, Receipt, CreditCard,
@@ -31,7 +32,7 @@ function App() {
 
             {/* Ventas */}
             <Route path="/opportunities" element={<Opportunities />} />
-            <Route path="/quotes" element={<ComingSoon title="Presupuestos" icon={FileText} />} />
+            <Route path="/quotes" element={<Proposals />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/contacts" element={<ComingSoon title="Contactos" icon={Contact} />} />
 
