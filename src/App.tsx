@@ -7,10 +7,11 @@ import Clients from './pages/Clients';
 import Login from './pages/Login';
 import Opportunities from './pages/Opportunities';
 import Proposals from './pages/Proposals';
+import Contacts from './pages/Contacts';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText, Building2, Clock, Wallet, Receipt, CreditCard,
-  Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users, Contact
+  Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
 } from 'lucide-react';
 
 
@@ -34,7 +35,7 @@ function App() {
             <Route path="/opportunities" element={<Opportunities />} />
             <Route path="/quotes" element={<Proposals />} />
             <Route path="/clients" element={<Clients />} />
-            <Route path="/contacts" element={<ComingSoon title="Contactos" icon={Contact} />} />
+            <Route path="/contacts" element={<Contacts />} />
 
             {/* Proyectos */}
             <Route path="/projects" element={<ComingSoon title="Gestión de Proyectos" icon={Building2} />} />

@@ -63,3 +63,27 @@ export interface Transaction {
     project_id: string | null;
     tenant_id: string;
 }
+
+export interface Contact {
+    id: string;
+    tenant_id: string;
+    first_name: string;
+    last_name: string;
+    email: string | null;
+    phone: string | null;
+    position: string | null;
+    department: string | null;
+    notes: string | null;
+    is_primary: boolean;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ContactClient {
+    id: string;
+    contact_id: string;
+    client_id: string;
+    tenant_id: string;
+    created_at: string;
+}

@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, UserPlus, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import type { Opportunity } from '../../types/crm';
+import type { Contact } from '../../types/crm';
+import ContactModal from '../contacts/ContactModal';
 
 interface OpportunityModalProps {
     isOpen: boolean;
@@ -18,6 +20,11 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
     const [showNewClientForm, setShowNewClientForm] = useState(false);
     const [newClientName, setNewClientName] = useState('');
     const [creatingClient, setCreatingClient] = useState(false);
+
+    // Contact management
+    const [contacts, setContacts] = useState<Contact[]>([]);
+    const [selectedContactId, setSelectedContactId] = useState<string>('');
+    const [showContactModal, setShowContactModal] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -111,13 +118,50 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
         }
     };
 
+    const fetchContactsForClient = async (clientId: string) => {
+        if (!clientId) {
+            setContacts([]);
+            setSelectedContactId('');
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('contact_clients')
+                .select(`
+                    contact:contacts(
+                        id,
+                        first_name,
+                        last_name,
+                        email,
+                        phone,
+                        position
+                    )
+                `)
+                .eq('client_id', clientId);
+
+            if (error) throw error;
+
+            const contactsList = data?.map((cc: any) => cc.contact).filter(Boolean) || [];
+            setContacts(contactsList);
+        } catch (err) {
+            console.error('Error fetching contacts:', err);
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        const numericFields = ['value', 'probability', 'setup_fee', 'monthly_fee'];
         setFormData(prev => ({
             ...prev,
-            [name]: numericFields.includes(name) ? Number(value) : value
+            [name]: ['value', 'probability', 'setup_fee', 'monthly_fee'].includes(name)
+                ? parseFloat(value) || 0
+                : value
         }));
+
+        // Fetch contacts when client changes
+        if (name === 'client_id') {
+            fetchContactsForClient(value);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -243,6 +287,44 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                                 </select>
                             )}
                         </div>
+
+                        {/* Contact Selection */}
+                        {formData.client_id && (
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-medium text-slate-300">Contacto</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowContactModal(true)}
+                                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                                    >
+                                        <UserPlus size={14} />
+                                        Nuevo Contacto
+                                    </button>
+                                </div>
+                                <select
+                                    name="contact_id"
+                                    value={selectedContactId}
+                                    onChange={(e) => setSelectedContactId(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                >
+                                    <option value="">Sin contacto asignado</option>
+                                    {contacts.map(contact => (
+                                        <option key={contact.id} value={contact.id}>
+                                            {contact.first_name} {contact.last_name}
+                                            {contact.position ? ` - ${contact.position}` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                {contacts.length === 0 && (
+                                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                                        <User size={12} />
+                                        No hay contactos para este cliente
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-300">Valor Estimado ($)</label>
                             <input
@@ -374,6 +456,17 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                     </div>
                 </form>
             </div>
+
+            {/* Contact Modal */}
+            <ContactModal
+                isOpen={showContactModal}
+                onClose={() => setShowContactModal(false)}
+                onSuccess={() => {
+                    setShowContactModal(false);
+                    fetchContactsForClient(formData.client_id);
+                }}
+                preselectedClientId={formData.client_id}
+            />
         </div>
     );
 }
