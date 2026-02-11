@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useActivityLog } from '../../hooks/useActivityLog';
+import { discordService } from '../../services/discord';
 
 interface ClientModalProps {
     isOpen: boolean;
@@ -12,7 +14,8 @@ interface ClientModalProps {
 }
 
 export default function ClientModal({ isOpen, onClose, onSuccess, client, convertFromProspect }: ClientModalProps) {
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
+    const { logActivity } = useActivityLog();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -90,6 +93,8 @@ export default function ClientModal({ isOpen, onClose, onSuccess, client, conver
                 created_by: profile?.id,
             };
 
+            let clientId = client?.id;
+
             if (client) {
                 // Update existing client
                 const { error } = await supabase
@@ -98,13 +103,58 @@ export default function ClientModal({ isOpen, onClose, onSuccess, client, conver
                     .eq('id', client.id);
 
                 if (error) throw error;
+
+                // Log activity for update
+                await logActivity({
+                    activityType: 'client_updated',
+                    title: `Cliente "${formData.name}" actualizado`,
+                    description: 'Se han modificado los datos del cliente',
+                    clientId: client.id,
+                    relatedToType: 'client',
+                    relatedToId: client.id,
+                    metadata: {
+                        updated_fields: Object.keys(formData),
+                        company_name: formData.company_name || null,
+                        industry: formData.industry || null
+                    }
+                });
             } else {
                 // Create new client
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('clients')
-                    .insert([dataToSave]);
+                    .insert([dataToSave])
+                    .select()
+                    .single();
 
                 if (error) throw error;
+                clientId = data?.id;
+
+                // Log activity for creation
+                await logActivity({
+                    activityType: 'client_created',
+                    title: `Cliente "${formData.name}" creado`,
+                    description: convertFromProspect
+                        ? 'Prospecto convertido a cliente activo'
+                        : 'Se ha creado un nuevo cliente en el sistema',
+                    clientId: clientId,
+                    relatedToType: 'client',
+                    relatedToId: clientId,
+                    metadata: {
+                        company_name: formData.company_name || null,
+                        industry: formData.industry || null,
+                        source: formData.source || null,
+                        converted_from_prospect: convertFromProspect || false
+                    }
+                });
+
+                // Send Discord notification for new client
+                if (user && profile) {
+                    await discordService.notifyNewClient(
+                        formData.name,
+                        formData.industry || null,
+                        profile.full_name || user.email || 'Usuario'
+                    );
+                }
             }
 
             onSuccess();

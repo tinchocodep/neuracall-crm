@@ -3,6 +3,8 @@ import { X, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Task } from '../../types/crm';
+import { useActivityLog } from '../../hooks/useActivityLog';
+import { discordService } from '../../services/discord';
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -12,7 +14,8 @@ interface TaskModalProps {
 }
 
 export default function TaskModal({ isOpen, onClose, onSuccess, task }: TaskModalProps) {
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
+    const { logActivity } = useActivityLog();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [projects, setProjects] = useState<any[]>([]);
@@ -140,6 +143,15 @@ export default function TaskModal({ isOpen, onClose, onSuccess, task }: TaskModa
                 related_to_id: formData.related_to_id || null,
             };
 
+            const oldStatus = task?.status;
+            let taskId = task?.id;
+            let clientId: string | null = null;
+
+            // Get client ID if task is related to a client
+            if (formData.related_to_type === 'client' && formData.related_to_id) {
+                clientId = formData.related_to_id;
+            }
+
             if (task) {
                 const { error } = await supabase
                     .from('tasks')
@@ -147,12 +159,71 @@ export default function TaskModal({ isOpen, onClose, onSuccess, task }: TaskModa
                     .eq('id', task.id);
 
                 if (error) throw error;
+
+                // Check if task was completed
+                if (oldStatus !== 'done' && formData.status === 'done') {
+                    // Log task completion
+                    await logActivity({
+                        activityType: 'task_completed',
+                        title: `Tarea "${formData.title}" completada`,
+                        description: 'La tarea ha sido marcada como completada',
+                        clientId: clientId || undefined,
+                        relatedToType: 'task',
+                        relatedToId: task.id,
+                        metadata: {
+                            priority: formData.priority,
+                            due_date: formData.due_date || null
+                        }
+                    });
+
+                    // Send Discord notification for task completion
+                    if (user && profile && clientId) {
+                        await discordService.notifyTaskCompleted(
+                            formData.title,
+                            clientId,
+                            profile.full_name || user.email || 'Usuario'
+                        );
+                    }
+                } else {
+                    // Log regular task update
+                    await logActivity({
+                        activityType: 'other',
+                        title: `Tarea "${formData.title}" actualizada`,
+                        description: 'Se han modificado los datos de la tarea',
+                        clientId: clientId || undefined,
+                        relatedToType: 'task',
+                        relatedToId: task.id,
+                        metadata: {
+                            status: formData.status,
+                            priority: formData.priority
+                        }
+                    });
+                }
             } else {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('tasks')
-                    .insert([taskData]);
+                    .insert([taskData])
+                    .select()
+                    .single();
 
                 if (error) throw error;
+                taskId = data?.id;
+
+                // Log task creation
+                await logActivity({
+                    activityType: 'task_created',
+                    title: `Tarea "${formData.title}" creada`,
+                    description: `Nueva tarea con prioridad ${formData.priority}`,
+                    clientId: clientId || undefined,
+                    relatedToType: 'task',
+                    relatedToId: taskId,
+                    metadata: {
+                        status: formData.status,
+                        priority: formData.priority,
+                        due_date: formData.due_date || null,
+                        assigned_to: taskData.assigned_to
+                    }
+                });
             }
 
             onSuccess();

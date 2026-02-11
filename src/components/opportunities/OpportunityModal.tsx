@@ -5,6 +5,9 @@ import { supabase } from '../../lib/supabase';
 import type { Opportunity } from '../../types/crm';
 import type { Contact } from '../../types/crm';
 import ContactModal from '../contacts/ContactModal';
+import { useAuth } from '../../contexts/AuthContext';
+import { useActivityLog } from '../../hooks/useActivityLog';
+import { discordService } from '../../services/discord';
 
 interface OpportunityModalProps {
     isOpen: boolean;
@@ -14,6 +17,8 @@ interface OpportunityModalProps {
 }
 
 export default function OpportunityModal({ isOpen, onClose, onSuccess, opportunity }: OpportunityModalProps) {
+    const { user, profile } = useAuth();
+    const { logActivity } = useActivityLog();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [clients, setClients] = useState<{ id: string, name: string }[]>([]);
@@ -170,6 +175,14 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
         setError(null);
 
         try {
+            const oldStatus = opportunity?.status;
+            let opportunityId = opportunity?.id;
+            let clientName = '';
+
+            // Get client name for notifications
+            const selectedClient = clients.find(c => c.id === formData.client_id);
+            clientName = selectedClient?.name || '';
+
             if (opportunity) {
                 // Update existing opportunity
                 const { error } = await supabase
@@ -178,13 +191,86 @@ export default function OpportunityModal({ isOpen, onClose, onSuccess, opportuni
                     .eq('id', opportunity.id);
 
                 if (error) throw error;
+
+                // Log activity for update
+                await logActivity({
+                    activityType: 'opportunity_updated',
+                    title: `Oportunidad "${formData.title}" actualizada`,
+                    description: `Se han modificado los datos de la oportunidad`,
+                    clientId: formData.client_id,
+                    relatedToType: 'opportunity',
+                    relatedToId: opportunity.id,
+                    metadata: {
+                        value: formData.value,
+                        status: formData.status,
+                        probability: formData.probability
+                    }
+                });
+
+                // Check if status changed
+                if (oldStatus && oldStatus !== formData.status) {
+                    // Log stage change activity
+                    await logActivity({
+                        activityType: 'opportunity_stage_changed',
+                        title: `Oportunidad "${formData.title}" cambió de etapa`,
+                        description: `Etapa anterior: ${oldStatus}, Nueva etapa: ${formData.status}`,
+                        clientId: formData.client_id,
+                        relatedToType: 'opportunity',
+                        relatedToId: opportunity.id,
+                        metadata: {
+                            old_stage: oldStatus,
+                            new_stage: formData.status,
+                            value: formData.value
+                        }
+                    });
+
+                    // Send Discord notification for stage change
+                    if (user && profile) {
+                        await discordService.notifyOpportunityStageChange(
+                            formData.title,
+                            clientName,
+                            oldStatus,
+                            formData.status,
+                            profile.full_name || user.email || 'Usuario'
+                        );
+                    }
+                }
             } else {
                 // Create new opportunity
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('opportunities')
-                    .insert([formData]);
+                    .insert([formData])
+                    .select()
+                    .single();
 
                 if (error) throw error;
+                opportunityId = data?.id;
+
+                // Log activity for creation
+                await logActivity({
+                    activityType: 'opportunity_created',
+                    title: `Oportunidad "${formData.title}" creada`,
+                    description: `Nueva oportunidad por un valor de $${formData.value.toLocaleString()}`,
+                    clientId: formData.client_id,
+                    relatedToType: 'opportunity',
+                    relatedToId: opportunityId,
+                    metadata: {
+                        value: formData.value,
+                        status: formData.status,
+                        probability: formData.probability,
+                        expected_close_date: formData.expected_close_date || null
+                    }
+                });
+
+                // Send Discord notification for new opportunity
+                if (user && profile) {
+                    await discordService.notifyNewOpportunity(
+                        formData.title,
+                        clientName,
+                        formData.value,
+                        profile.full_name || user.email || 'Usuario'
+                    );
+                }
             }
 
             onSuccess();
