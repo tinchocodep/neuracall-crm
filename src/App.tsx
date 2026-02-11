@@ -15,6 +15,7 @@ import Invoices from './pages/Invoices';
 import Transactions from './pages/Transactions';
 import Expenses from './pages/Expenses';
 import Calendar from './pages/Calendar';
+import Ficha360 from './pages/Ficha360';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText,
@@ -42,6 +43,7 @@ function App() {
             <Route path="/opportunities" element={<Opportunities />} />
             <Route path="/quotes" element={<Proposals />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/clients/:id" element={<Ficha360 />} />
             <Route path="/contacts" element={<Contacts />} />
 
             {/* Proyectos */}

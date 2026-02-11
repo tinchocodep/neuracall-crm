@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -10,7 +11,8 @@ import {
     Building2,
     Users,
     CheckCircle,
-    Edit
+    Edit,
+    Eye
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ClientModal from '../components/clients/ClientModal';
@@ -29,6 +31,7 @@ interface Client {
 
 export default function Clients() {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const [clients, setClients] = useState<Client[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -193,6 +196,16 @@ export default function Clients() {
                             className="bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 rounded-xl p-4 transition-all hover:bg-slate-800/80 hover:shadow-lg hover:shadow-blue-900/10 group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full"
                         >
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/clients/${client.id}`);
+                                    }}
+                                    className="p-1.5 hover:bg-purple-600 rounded-lg text-slate-400 hover:text-white"
+                                    title="Ver Ficha 360"
+                                >
+                                    <Eye size={16} />
+                                </button>
                                 <button
                                     onClick={(e) => handleEditClient(client, e)}
                                     className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white"
