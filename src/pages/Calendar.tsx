@@ -3,7 +3,6 @@ import {
     Calendar as CalendarIcon,
     ChevronLeft,
     ChevronRight,
-    Plus,
     X,
     Clock,
     MapPin,
@@ -49,7 +48,6 @@ export default function Calendar() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [viewMode, setViewMode] = useState<'all' | 'mine'>('mine');
     const [typeFilter, setTypeFilter] = useState<string>('all');
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchEvents();
@@ -58,7 +56,6 @@ export default function Calendar() {
     const fetchEvents = async () => {
         if (!profile) return;
 
-        setLoading(true);
         try {
             const monthStart = startOfMonth(currentDate);
             const monthEnd = endOfMonth(currentDate);
@@ -82,8 +79,6 @@ export default function Calendar() {
             setEvents(data || []);
         } catch (error) {
             console.error('Error fetching events:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
