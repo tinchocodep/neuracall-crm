@@ -33,6 +33,8 @@ export interface Project {
     client_id: string;
     opportunity_id: string | null;
     tenant_id: string;
+    project_url: string | null;
+    git_repository: string | null;
 }
 
 export interface Task {

@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Opportunities from './pages/Opportunities';
 import Proposals from './pages/Proposals';
 import Contacts from './pages/Contacts';
+import Projects from './pages/Projects';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText, Building2, Clock, Wallet, Receipt, CreditCard,
@@ -38,7 +39,7 @@ function App() {
             <Route path="/contacts" element={<Contacts />} />
 
             {/* Proyectos */}
-            <Route path="/projects" element={<ComingSoon title="Gestión de Proyectos" icon={Building2} />} />
+            <Route path="/projects" element={<Projects />} />
             <Route path="/tasks" element={<ComingSoon title="Mis Tareas" icon={FileText} />} />
             <Route path="/time-tracking" element={<ComingSoon title="Control de Tiempos" icon={Clock} />} />
 
