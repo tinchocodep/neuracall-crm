@@ -23,6 +23,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '../lib/utils';
+import ActivityTimeline from '../components/client/ActivityTimeline';
 
 interface Client {
     id: string;
@@ -604,6 +605,24 @@ export default function Ficha360() {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Activity History Section */}
+            <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                <div className="p-6 border-b border-slate-800">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-lg">
+                            <Activity size={24} className="text-purple-400" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-white">Historial de Actividad</h3>
+                            <p className="text-sm text-slate-400">Timeline completo de interacciones</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-6">
+                    <ActivityTimeline clientId={client.id} />
+                </div>
             </div>
         </div>
     );
