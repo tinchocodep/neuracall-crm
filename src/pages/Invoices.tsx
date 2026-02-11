@@ -22,6 +22,7 @@ import {
 import { cn } from '../lib/utils';
 import type { Invoice } from '../types/crm';
 import InvoiceModal from '../components/invoices/InvoiceModal';
+import PaymentModal from '../components/invoices/PaymentModal';
 
 interface InvoiceWithRelations extends Invoice {
     project?: { id: string; name: string };
@@ -38,6 +39,8 @@ export default function Invoices() {
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | undefined>(undefined);
+    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+    const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<Invoice | undefined>(undefined);
 
     useEffect(() => {
         fetchInvoices();
@@ -455,6 +458,19 @@ export default function Invoices() {
                                             </p>
                                         </div>
                                     )}
+
+                                    {/* Register Payment Button */}
+                                    {invoice.payment_status !== 'paid' && (
+                                        <div className="mt-4">
+                                            <button
+                                                onClick={() => { setSelectedInvoiceForPayment(invoice); setPaymentModalOpen(true); }}
+                                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600/20 to-blue-600/20 hover:from-emerald-600/30 hover:to-blue-600/30 border border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 rounded-xl font-medium transition-all duration-200 active:scale-95"
+                                            >
+                                                <CreditCard size={18} />
+                                                <span>Registrar Pago</span>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -469,6 +485,16 @@ export default function Invoices() {
                 invoice={selectedInvoice}
                 onSave={fetchInvoices}
             />
+
+            {/* Payment Modal */}
+            {selectedInvoiceForPayment && (
+                <PaymentModal
+                    isOpen={paymentModalOpen}
+                    onClose={() => { setPaymentModalOpen(false); setSelectedInvoiceForPayment(undefined); }}
+                    invoice={selectedInvoiceForPayment}
+                    onSave={fetchInvoices}
+                />
+            )}
         </div>
     );
 }
