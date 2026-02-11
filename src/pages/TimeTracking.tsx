@@ -30,11 +30,14 @@ export default function TimeTracking() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState<TimeEntryWithProject | undefined>(undefined);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+    const [projects, setProjects] = useState<any[]>([]);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
     const timerInterval = useRef<number | null>(null);
     const notificationInterval = useRef<number | null>(null);
 
     useEffect(() => {
         fetchEntries();
+        fetchProjects();
         requestNotificationPermission();
 
         return () => {
@@ -80,6 +83,26 @@ export default function TimeTracking() {
                 icon: '/neuracall-logo.png',
                 badge: '/neuracall-logo.png'
             });
+        }
+    };
+
+    const fetchProjects = async () => {
+        try {
+            let query = supabase
+                .from('projects')
+                .select('id, name, status')
+                .in('status', ['onboarding', 'development', 'testing', 'deployment', 'maintenance'])
+                .order('name');
+
+            if (profile?.tenant_id) {
+                query = query.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+            setProjects(data || []);
+        } catch (err) {
+            console.error('Error fetching projects:', err);
         }
     };
 
@@ -133,14 +156,15 @@ export default function TimeTracking() {
         }
     };
 
-    const handleStartTimer = async (projectId?: string) => {
+
+    const handleStartTimer = async () => {
         try {
             const { data, error } = await supabase
                 .from('time_entries')
                 .insert([{
                     tenant_id: profile?.tenant_id,
                     user_id: profile?.id,
-                    project_id: projectId || null,
+                    project_id: selectedProjectId || null,
                     start_time: new Date().toISOString(),
                     is_running: true,
                 }])
@@ -151,6 +175,7 @@ export default function TimeTracking() {
 
             setActiveEntry(data);
             setElapsedTime(0);
+            setSelectedProjectId(''); // Reset selection
             fetchEntries();
 
             sendNotification('Timer iniciado', 'El contador de tiempo ha comenzado');
@@ -266,58 +291,121 @@ export default function TimeTracking() {
             </div>
 
             {/* Active Timer */}
-            <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">
-                            {activeEntry ? 'Timer Activo' : 'Iniciar Timer'}
-                        </h3>
-                        {activeEntry && activeEntry.project && (
-                            <p className="text-sm text-slate-300 flex items-center gap-2">
-                                <FolderKanban size={16} />
-                                {activeEntry.project.name}
-                            </p>
-                        )}
-                    </div>
+            <div className={cn(
+                "relative overflow-hidden rounded-2xl p-6 transition-all duration-500",
+                activeEntry
+                    ? "bg-gradient-to-br from-emerald-600/20 via-blue-600/20 to-purple-600/20 border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/20"
+                    : "bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50"
+            )}>
+                {/* Animated background pulse when active */}
+                {activeEntry && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-purple-500/10 animate-pulse" />
+                )}
 
-                    <div className="flex items-center gap-4">
-                        <div className="text-center">
-                            <div className="text-4xl md:text-5xl font-mono font-bold text-white">
-                                {formatDuration(elapsedTime)}
-                            </div>
-                            {activeEntry && (
-                                <p className="text-xs text-slate-400 mt-1">
-                                    Desde {new Date(activeEntry.start_time).toLocaleTimeString()}
+                <div className="relative z-10 space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                {activeEntry ? (
+                                    <>
+                                        <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-500/50" />
+                                        Timer Activo
+                                    </>
+                                ) : (
+                                    'Iniciar Timer'
+                                )}
+                            </h3>
+                            {activeEntry && activeEntry.project && (
+                                <p className="text-sm text-slate-300 flex items-center gap-2 mt-1">
+                                    <FolderKanban size={14} />
+                                    {activeEntry.project.name}
                                 </p>
                             )}
                         </div>
 
-                        {activeEntry ? (
-                            <button
-                                onClick={handleStopTimer}
-                                className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-red-500/20 transition-all active:scale-95"
-                            >
-                                <Pause size={20} />
-                                <span>Detener</span>
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => handleStartTimer()}
-                                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
-                            >
-                                <Play size={20} />
-                                <span>Iniciar</span>
-                            </button>
+                        {activeEntry && (
+                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-medium flex items-center gap-2">
+                                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+                                En curso
+                            </span>
                         )}
                     </div>
-                </div>
 
-                {activeEntry && notificationsEnabled && (
-                    <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center gap-2 text-sm text-blue-300">
-                        <Bell size={16} />
-                        <span>Recibirás notificaciones cada 30 minutos mientras el timer esté activo</span>
+                    {/* Timer Display */}
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex-1 w-full">
+                            {!activeEntry && (
+                                <div className="space-y-3">
+                                    <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                        <FolderKanban size={16} />
+                                        Selecciona un proyecto (opcional)
+                                    </label>
+                                    <select
+                                        value={selectedProjectId}
+                                        onChange={(e) => setSelectedProjectId(e.target.value)}
+                                        className="w-full bg-slate-900/80 border border-slate-700 hover:border-blue-500/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                                    >
+                                        <option value="">Sin proyecto específico</option>
+                                        {projects.map(project => (
+                                            <option key={project.id} value={project.id}>
+                                                {project.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-6">
+                            {/* Time Display */}
+                            <div className="text-center">
+                                <div className={cn(
+                                    "font-mono font-bold transition-all duration-300",
+                                    activeEntry
+                                        ? "text-5xl md:text-6xl text-emerald-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.5)]"
+                                        : "text-4xl md:text-5xl text-slate-400"
+                                )}>
+                                    {formatDuration(elapsedTime)}
+                                </div>
+                                {activeEntry && (
+                                    <p className="text-xs text-slate-400 mt-2 animate-fade-in">
+                                        Desde {new Date(activeEntry.start_time).toLocaleTimeString()}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Action Button */}
+                            {activeEntry ? (
+                                <button
+                                    onClick={handleStopTimer}
+                                    className="group relative flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white px-8 py-4 rounded-xl font-semibold shadow-xl shadow-red-500/30 transition-all duration-300 active:scale-95 hover:shadow-2xl hover:shadow-red-500/40"
+                                >
+                                    <Pause size={22} className="group-hover:scale-110 transition-transform" />
+                                    <span>Detener</span>
+                                    <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleStartTimer}
+                                    className="group relative flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white px-8 py-4 rounded-xl font-semibold shadow-xl shadow-emerald-500/30 transition-all duration-300 active:scale-95 hover:shadow-2xl hover:shadow-emerald-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Play size={22} className="group-hover:scale-110 transition-transform" />
+                                    <span>Iniciar</span>
+                                    <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
+                                </button>
+                            )}
+                        </div>
                     </div>
-                )}
+
+                    {/* Notification Badge */}
+                    {activeEntry && notificationsEnabled && (
+                        <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-2 text-sm text-blue-300 animate-fade-in">
+                            <Bell size={16} className="animate-bounce" />
+                            <span>Recibirás notificaciones cada 30 minutos mientras el timer esté activo</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Stats */}
