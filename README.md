@@ -1,195 +1,206 @@
-# 🧠 Neuracall CRM
+# 🚀 Neuracall CRM
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tinchocodep/neuracall-crm)
+Un sistema CRM moderno y completo construido con React, TypeScript, Supabase y Discord.
 
-Sistema de gestión de relaciones con clientes (CRM) diseñado específicamente para **Neuracall**, una agencia de software especializada en inteligencia artificial.
-
-![Neuracall](./public/neuracall-logo.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## ✨ Características Principales
 
-### 🎯 Dashboard Inteligente
-- Métricas en tiempo real de proyectos de IA
-- Visualización de ingresos y crecimiento
-- Actividad reciente del equipo
-- KPIs personalizados para agencia de IA
+### 📊 Gestión Completa de CRM
+- **Clientes**: Gestión completa de clientes con Ficha 360°
+- **Contactos**: Administración de contactos vinculados a clientes
+- **Oportunidades**: Pipeline de ventas con etapas personalizables
+- **Proyectos**: Seguimiento de proyectos activos
+- **Tareas**: Gestión de tareas y seguimiento
+- **Calendario**: Programación de reuniones y eventos
+- **Propuestas**: Creación y gestión de propuestas comerciales
+- **Facturas**: Sistema de facturación integrado
+- **Gastos**: Control de gastos y transacciones
 
-### 👥 Gestión de CRM
-- **Clientes**: Base de datos de empresas activas
-- **Contactos**: Directorio de personas en empresas
-- **Prospectos**: Pipeline de empresas potenciales
-- **Oportunidades**: Proyectos de IA en negociación
+### 👥 Gestión de Usuarios Avanzada
+- **Perfiles completos** con foto de perfil
+- **Roles y permisos** (Fundador, Admin, Supervisor, Comercial)
+- **Multi-tenant** con aislamiento completo de datos
+- **Activación/Desactivación** de usuarios
+- **Edición de perfil** por cada usuario
 
-### 🧠 Proyectos de IA
-- Gestión de proyectos activos
-- Portfolio de casos completados
-- Seguimiento de milestones
-- Asignación de equipo
+### 📈 Historial de Actividad
+- **Timeline completo** de interacciones por cliente
+- **17 tipos de actividades** soportadas
+- **Metadata enriquecida** en formato JSON
+- **Búsqueda y filtrado** de actividades
+- **Integración automática** con todas las acciones del CRM
 
-### 💰 Ventas y Finanzas
-- Cotizador de proyectos de IA
-- Control presupuestario
-- Tesorería y flujo de caja
-- Gestión de gastos y nómina
+### 💬 Integración con Discord
+- **Chat en tiempo real** con el equipo
+- **Notificaciones automáticas** de eventos importantes
+- **Canales de voz** para reuniones de equipo
+- **Webhooks personalizables** para cada tipo de evento
+- **Interfaz flotante** no intrusiva
 
-### 📋 Operaciones
-- Gestión de tareas
-- Calendario compartido
-- Seguimiento de actividades
+## 🛠️ Tecnologías
 
-## 🚀 Inicio Rápido
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Comunicación**: Discord Webhooks
+- **Routing**: React Router v6
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
+
+## 📦 Instalación
 
 ### Prerrequisitos
 - Node.js 18+ 
 - npm o yarn
-- Cuenta en Supabase
+- Cuenta de Supabase
+- Cuenta de Discord (opcional, para chat)
 
-### Instalación
+### Pasos
 
 1. **Clonar el repositorio**
-```bash
-git clone <repository-url>
-cd polar-curiosity
-```
+   ```bash
+   git clone https://github.com/tinchocodep/neuracall-crm.git
+   cd neuracall-crm
+   ```
 
 2. **Instalar dependencias**
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. **Configurar variables de entorno**
-```bash
-cp .env.example .env
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edita `.env` y agrega tus credenciales:
+   ```bash
+   # Supabase
+   VITE_SUPABASE_URL=tu_supabase_url
+   VITE_SUPABASE_ANON_KEY=tu_supabase_anon_key
+   
+   # Discord (opcional)
+   VITE_DISCORD_WEBHOOK_URL=tu_discord_webhook_url
+   VITE_DISCORD_GUILD_ID=tu_discord_server_id
+   VITE_DISCORD_CHANNEL_ID=tu_discord_channel_id
+   VITE_DISCORD_VOICE_CHANNEL_ID=tu_discord_voice_channel_id
+   ```
+
+4. **Configurar la base de datos**
+   - Ve a tu proyecto de Supabase
+   - Ejecuta las migraciones en `supabase/migrations/`
+   - Configura las políticas RLS según la documentación
+
+5. **Iniciar el servidor de desarrollo**
+   ```bash
+   npm run dev
+   ```
+
+6. **Abrir en el navegador**
+   ```
+   http://localhost:5173
+   ```
+
+## 📚 Documentación
+
+- **[FEATURES.md](./FEATURES.md)** - Documentación completa de todas las funcionalidades
+- **[DISCORD_SETUP.md](./DISCORD_SETUP.md)** - Guía paso a paso para configurar Discord
+- **[src/examples/](./src/examples/)** - Ejemplos de código para desarrolladores
+
+## 🚀 Despliegue
+
+### Vercel (Recomendado)
+
+1. **Conectar con Vercel**
+   ```bash
+   npm install -g vercel
+   vercel
+   ```
+
+2. **Configurar variables de entorno en Vercel**
+   - Ve a tu proyecto en Vercel
+   - Settings → Environment Variables
+   - Agrega todas las variables de `.env`
+
+3. **Desplegar**
+   ```bash
+   vercel --prod
+   ```
+
+### Otras Plataformas
+
+El proyecto es compatible con:
+- Netlify
+- AWS Amplify
+- Google Cloud Run
+- Cualquier servicio que soporte aplicaciones React
+
+## 🏗️ Estructura del Proyecto
+
 ```
-
-Edita `.env` y agrega tus credenciales de Supabase:
-```env
-VITE_SUPABASE_URL=tu_url_de_supabase
-VITE_SUPABASE_ANON_KEY=tu_clave_anonima
-```
-
-4. **Configurar base de datos**
-
-Sigue las instrucciones en [DATABASE.md](./DATABASE.md) para crear las tablas necesarias en Supabase.
-
-5. **Ejecutar en desarrollo**
-```bash
-npm run dev
-```
-
-La aplicación estará disponible en `http://localhost:5173`
-
-## 📁 Estructura del Proyecto
-
-```
-polar-curiosity/
-├── public/
-│   └── neuracall-logo.svg       # Logo de Neuracall
+neuracall-crm/
 ├── src/
-│   ├── components/
-│   │   └── layout/
-│   │       ├── Layout.tsx        # Layout principal
-│   │       ├── Sidebar.tsx       # Navegación lateral
-│   │       └── TopBar.tsx        # Barra superior
-│   ├── lib/
-│   │   └── supabase.ts          # Cliente de Supabase
-│   ├── pages/
-│   │   └── Dashboard.tsx        # Dashboard principal
-│   ├── utils/
-│   │   └── cn.ts                # Utilidades
-│   ├── App.tsx                  # Configuración de rutas
-│   ├── index.css                # Estilos globales
-│   └── main.tsx                 # Punto de entrada
-├── .env.example                 # Template de variables
-├── DATABASE.md                  # Documentación de BD
-├── MODULES.md                   # Descripción de módulos
-└── README.md                    # Este archivo
+│   ├── components/          # Componentes React
+│   │   ├── chat/           # Componentes de chat
+│   │   ├── client/         # Componentes de clientes
+│   │   ├── common/         # Componentes comunes
+│   │   ├── layout/         # Layout y navegación
+│   │   └── settings/       # Componentes de configuración
+│   ├── contexts/           # Contextos de React (Auth, etc.)
+│   ├── hooks/              # Custom hooks
+│   ├── lib/                # Utilidades y configuración
+│   ├── pages/              # Páginas de la aplicación
+│   ├── services/           # Servicios (Discord, etc.)
+│   ├── types/              # Tipos de TypeScript
+│   └── examples/           # Ejemplos de código
+├── public/                 # Archivos estáticos
+├── supabase/              # Migraciones y configuración
+└── docs/                  # Documentación adicional
 ```
-
-## 🎨 Diseño y Branding
-
-### Colores Neuracall
-- **Azul Principal**: `#3B82F6` (Blue 500)
-- **Azul Claro**: `#60A5FA` (Blue 400)
-- **Cyan**: `#06B6D4` (Cyan 500)
-- **Fondo Oscuro**: `#0F172A` (Slate 900)
-
-### Tipografía
-- Sistema de fuentes nativo optimizado
-- Soporte para dark mode
-
-### Componentes
-- Glassmorphism effects
-- Animaciones con Framer Motion
-- Gráficos con Recharts
-- Iconos de Lucide React
-
-## 📊 Base de Datos
-
-El sistema utiliza **Supabase** (PostgreSQL) con las siguientes tablas:
-
-- `clients` - Clientes activos
-- `contacts` - Contactos de empresas
-- `prospects` - Prospectos en pipeline
-- `opportunities` - Oportunidades de proyectos
-- `ai_projects` - Proyectos de IA
-
-Ver [DATABASE.md](./DATABASE.md) para el schema completo y scripts SQL.
-
-## 🔧 Tecnologías
-
-- **Frontend**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router v6
-- **Database**: Supabase (PostgreSQL)
-- **Charts**: Recharts
-- **Animations**: Framer Motion
-- **Icons**: Lucide React
-
-## 📝 Módulos
-
-Ver [MODULES.md](./MODULES.md) para una descripción detallada de cada módulo y su función.
 
 ## 🔐 Seguridad
 
-- Row Level Security (RLS) habilitado en Supabase
-- Autenticación mediante Supabase Auth
-- Variables de entorno para credenciales sensibles
+- **RLS (Row Level Security)** habilitado en todas las tablas
+- **Multi-tenant** con aislamiento completo de datos
+- **Autenticación** mediante Supabase Auth
+- **Variables de entorno** para credenciales sensibles
+- **HTTPS** obligatorio en producción
 
-## 🚧 Desarrollo
+## 🤝 Contribuir
 
-### Scripts Disponibles
+Las contribuciones son bienvenidas. Por favor:
 
-```bash
-# Desarrollo
-npm run dev
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-# Build para producción
-npm run build
+## 📝 Licencia
 
-# Preview de producción
-npm run preview
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
-# Linting
-npm run lint
-```
+## 👨‍💻 Autor
 
-### Agregar Nuevos Módulos
+**Martin Cabrera**
+- GitHub: [@tinchocodep](https://github.com/tinchocodep)
 
-1. Crear componente en `src/pages/`
-2. Agregar ruta en `src/App.tsx`
-3. Actualizar navegación en `src/components/layout/Sidebar.tsx`
-4. Documentar en `MODULES.md`
+## 🙏 Agradecimientos
 
-## 📄 Licencia
+- [Supabase](https://supabase.com) por el backend
+- [Discord](https://discord.com) por la integración de chat
+- [Tailwind CSS](https://tailwindcss.com) por el sistema de diseño
+- [Lucide](https://lucide.dev) por los iconos
 
-Propiedad de Neuracall. Todos los derechos reservados.
+## 📞 Soporte
 
-## 👥 Equipo
-
-Desarrollado con ❤️ por el equipo de Neuracall
+Si tienes preguntas o necesitas ayuda:
+- Abre un [Issue](https://github.com/tinchocodep/neuracall-crm/issues)
+- Consulta la [Documentación](./FEATURES.md)
+- Revisa los [Ejemplos](./src/examples/)
 
 ---
 
-**Neuracall** - AI Agency 🧠
+⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub!
