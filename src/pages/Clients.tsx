@@ -4,28 +4,27 @@ import { useAuth } from '../contexts/AuthContext';
 import {
     Plus,
     Search,
-    MoreHorizontal,
     Phone,
     Mail,
     MapPin,
     Building2,
-    Users
+    Users,
+    CheckCircle,
+    Edit
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useNavigate } from 'react-router-dom';
+import ClientModal from '../components/clients/ClientModal';
 
 interface Client {
     id: string;
-    first_name: string;
-    last_name: string;
+    name: string;
     email: string;
     phone: string;
     address: string;
     city: string;
-    document_number: string;
+    company_name: string;
     status: string;
     created_at: string;
-    companies?: { id: string, name: string }[];
 }
 
 export default function Clients() {
@@ -33,7 +32,10 @@ export default function Clients() {
     const [clients, setClients] = useState<Client[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
+    const [filterStatus, setFilterStatus] = useState<'all' | 'prospect' | 'active'>('all');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
+    const [convertMode, setConvertMode] = useState(false);
 
     useEffect(() => {
         fetchClients();
@@ -42,15 +44,9 @@ export default function Clients() {
     const fetchClients = async () => {
         setLoading(true);
         try {
-            console.log('Fetching clients...');
             let query = supabase
                 .from('clients')
-                .select(`
-                    *,
-                    companies:client_companies(
-                        company:companies(id, name)
-                    )
-                `)
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (profile?.tenant_id) {
@@ -59,11 +55,7 @@ export default function Clients() {
 
             const { data, error } = await query;
 
-            if (error) {
-                console.error('Error fetching clients:', error);
-                throw error;
-            }
-
+            if (error) throw error;
             setClients(data || []);
         } catch (error) {
             console.error('Error in fetchClients:', error);
@@ -72,11 +64,42 @@ export default function Clients() {
         }
     };
 
-    const filteredClients = clients.filter(client =>
-        client.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.last_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.email?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const handleNewClient = () => {
+        setSelectedClient(undefined);
+        setConvertMode(false);
+        setModalOpen(true);
+    };
+
+    const handleEditClient = (client: Client, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedClient(client);
+        setConvertMode(false);
+        setModalOpen(true);
+    };
+
+    const handleConvertToClient = (client: Client, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedClient(client);
+        setConvertMode(true);
+        setModalOpen(true);
+    };
+
+    const filteredClients = clients.filter(client => {
+        const matchesSearch =
+            client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            client.company_name?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesStatus =
+            filterStatus === 'all' ||
+            (filterStatus === 'prospect' && client.status === 'prospect') ||
+            (filterStatus === 'active' && client.status === 'active');
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const prospectCount = clients.filter(c => c.status === 'prospect').length;
+    const activeCount = clients.filter(c => c.status === 'active').length;
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-0">
@@ -86,12 +109,12 @@ export default function Clients() {
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white">Clientes</h1>
                     <p className="text-slate-400 mt-1">
-                        Gestiona tu cartera de clientes y empresas.
+                        Gestiona tu cartera de clientes y prospectos.
                     </p>
                 </div>
 
                 <button
-                    onClick={() => navigate('/clients/new')}
+                    onClick={handleNewClient}
                     className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-medium shadow-lg shadow-blue-500/20 transition-all active:scale-95 w-full md:w-auto"
                 >
                     <Plus size={20} />
@@ -99,16 +122,50 @@ export default function Clients() {
                 </button>
             </div>
 
-            {/* Filters Bar */}
-            <div className="bg-slate-900/50 backdrop-blur-md p-2 rounded-2xl border border-slate-800 flex items-center gap-2 max-w-md w-full">
-                <Search size={20} className="text-slate-500 ml-3 shrink-0" />
-                <input
-                    type="text"
-                    placeholder="Buscar por nombre, email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 text-slate-200 placeholder-slate-500 w-full p-2 outline-none"
-                />
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+                {/* Status Filter */}
+                <div className="flex gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 w-fit">
+                    <button
+                        onClick={() => setFilterStatus('all')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'all'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
+                            }`}
+                    >
+                        Todos ({clients.length})
+                    </button>
+                    <button
+                        onClick={() => setFilterStatus('prospect')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'prospect'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
+                            }`}
+                    >
+                        Prospectos ({prospectCount})
+                    </button>
+                    <button
+                        onClick={() => setFilterStatus('active')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'active'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
+                            }`}
+                    >
+                        Activos ({activeCount})
+                    </button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="bg-slate-900/50 backdrop-blur-md p-2 rounded-2xl border border-slate-800 flex items-center gap-2 flex-1 max-w-md">
+                    <Search size={20} className="text-slate-500 ml-3 shrink-0" />
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre, email, empresa..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-transparent border-none focus:ring-0 text-slate-200 placeholder-slate-500 w-full p-2 outline-none"
+                    />
+                </div>
             </div>
 
             {/* Content Area */}
@@ -123,9 +180,9 @@ export default function Clients() {
                     <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users size={32} className="text-slate-600" />
                     </div>
-                    <h3 className="text-lg font-medium text-slate-300">No hay clientes aún</h3>
+                    <h3 className="text-lg font-medium text-slate-300">No hay clientes</h3>
                     <p className="text-slate-500 max-w-sm mx-auto mt-2">
-                        Comienza agregando tu primer cliente para ver la magia de Neuracall.
+                        {searchQuery ? 'No se encontraron resultados' : 'Comienza agregando tu primer cliente'}
                     </p>
                 </div>
             ) : (
@@ -134,39 +191,57 @@ export default function Clients() {
                         <div
                             key={client.id}
                             className="bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 rounded-xl p-4 transition-all hover:bg-slate-800/80 hover:shadow-lg hover:shadow-blue-900/10 group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full"
-                            onClick={() => console.log('Open client', client.id)}
                         >
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white">
-                                    <MoreHorizontal size={18} />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                <button
+                                    onClick={(e) => handleEditClient(client, e)}
+                                    className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white"
+                                    title="Editar"
+                                >
+                                    <Edit size={16} />
                                 </button>
+                                {client.status === 'prospect' && (
+                                    <button
+                                        onClick={(e) => handleConvertToClient(client, e)}
+                                        className="p-1.5 hover:bg-green-600 rounded-lg text-slate-400 hover:text-white"
+                                        title="Convertir a Cliente"
+                                    >
+                                        <CheckCircle size={16} />
+                                    </button>
+                                )}
                             </div>
 
                             <div>
                                 <div className="flex items-start gap-3 mb-3">
                                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm border border-white/10 shrink-0 shadow-sm">
-                                        {client.first_name?.[0]}{client.last_name?.[0]}
+                                        {client.name?.[0]?.toUpperCase() || '?'}
                                     </div>
-                                    <div className="pr-6">
-                                        <h3 className="font-semibold text-base text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1" title={`${client.first_name} ${client.last_name}`}>
-                                            {client.first_name} {client.last_name}
+                                    <div className="pr-10">
+                                        <h3 className="font-semibold text-base text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1" title={client.name}>
+                                            {client.name}
                                         </h3>
-                                        <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5" title={client.document_number}>
-                                            <Building2 size={10} />
-                                            {client.document_number || 'Sin ID'}
-                                        </p>
+                                        {client.company_name && (
+                                            <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5" title={client.company_name}>
+                                                <Building2 size={10} />
+                                                <span className="line-clamp-1">{client.company_name}</span>
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
                                 <div className="space-y-2 mb-4">
-                                    <div className="flex items-center gap-2 text-xs text-slate-400">
-                                        <Mail size={14} className="text-slate-600 shrink-0" />
-                                        <span className="truncate" title={client.email}>{client.email || 'No email'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-400">
-                                        <Phone size={14} className="text-slate-600 shrink-0" />
-                                        <span className="truncate">{client.phone || 'No phone'}</span>
-                                    </div>
+                                    {client.email && (
+                                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                                            <Mail size={14} className="text-slate-600 shrink-0" />
+                                            <span className="truncate" title={client.email}>{client.email}</span>
+                                        </div>
+                                    )}
+                                    {client.phone && (
+                                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                                            <Phone size={14} className="text-slate-600 shrink-0" />
+                                            <span className="truncate">{client.phone}</span>
+                                        </div>
+                                    )}
                                     {client.city && (
                                         <div className="flex items-center gap-2 text-xs text-slate-400">
                                             <MapPin size={14} className="text-slate-600 shrink-0" />
@@ -181,9 +256,13 @@ export default function Clients() {
                                     "px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider",
                                     client.status === 'active'
                                         ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                        : "bg-slate-700/50 text-slate-400 border border-slate-600"
+                                        : client.status === 'prospect'
+                                            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                            : "bg-slate-700/50 text-slate-400 border border-slate-600"
                                 )}>
-                                    {client.status === 'active' ? 'Activo' : 'Inactivo'}
+                                    {client.status === 'active' ? 'Activo' :
+                                        client.status === 'prospect' ? 'Prospecto' :
+                                            client.status === 'lead' ? 'Lead' : 'Inactivo'}
                                 </span>
                                 <span className="text-[10px] text-slate-600">
                                     {new Date(client.created_at).toLocaleDateString()}
@@ -193,6 +272,24 @@ export default function Clients() {
                     ))}
                 </div>
             )}
+
+            {/* Client Modal */}
+            <ClientModal
+                isOpen={modalOpen}
+                onClose={() => {
+                    setModalOpen(false);
+                    setSelectedClient(undefined);
+                    setConvertMode(false);
+                }}
+                onSuccess={() => {
+                    fetchClients();
+                    setModalOpen(false);
+                    setSelectedClient(undefined);
+                    setConvertMode(false);
+                }}
+                client={selectedClient}
+                convertFromProspect={convertMode}
+            />
         </div>
     );
 }
