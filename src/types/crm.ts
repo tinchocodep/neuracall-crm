@@ -104,3 +104,57 @@ export interface TimeEntry {
     created_at: string;
     updated_at: string;
 }
+
+export interface Invoice {
+    id: string;
+    tenant_id: string;
+    project_id: string;
+    client_id: string;
+    invoice_number: string | null;
+    invoice_type: 'installation' | 'monthly' | 'other';
+    tax_type: 'with_vat' | 'without_vat';
+    subtotal: number;
+    vat_amount: number;
+    total_amount: number;
+    paid_amount: number;
+    pending_amount: number;
+    payment_status: 'pending' | 'partial' | 'paid' | 'overdue';
+    issue_date: string;
+    due_date: string | null;
+    invoice_file_url: string | null;
+    notes: string | null;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface InvoicePayment {
+    id: string;
+    tenant_id: string;
+    invoice_id: string;
+    amount: number;
+    payment_method: 'cash' | 'transfer' | 'check' | 'card' | 'other';
+    payment_date: string;
+    receipt_file_url: string | null;
+    notes: string | null;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface UserEarning {
+    id: string;
+    tenant_id: string;
+    project_id: string;
+    user_id: string;
+    invoice_payment_id: string | null;
+    amount: number;
+    percentage: number | null;
+    earning_type: 'installation' | 'monthly' | 'bonus' | 'other';
+    status: 'pending' | 'approved' | 'paid';
+    payment_date: string | null;
+    description: string | null;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
