@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Invoice } from '../types/crm';
+import InvoiceModal from '../components/invoices/InvoiceModal';
 
 interface InvoiceWithRelations extends Invoice {
     project?: { id: string; name: string };
@@ -35,6 +36,8 @@ export default function Invoices() {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [typeFilter, setTypeFilter] = useState<string>('all');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | undefined>(undefined);
 
     useEffect(() => {
         fetchInvoices();
@@ -185,7 +188,7 @@ export default function Invoices() {
                 </div>
 
                 <button
-                    onClick={() => {/* TODO: Open modal */ }}
+                    onClick={() => { setSelectedInvoice(undefined); setModalOpen(true); }}
                     className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-6 py-3 rounded-xl font-semibold shadow-xl shadow-blue-500/30 transition-all duration-300 active:scale-95 hover:shadow-2xl hover:shadow-blue-500/40"
                 >
                     <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
@@ -400,13 +403,22 @@ export default function Invoices() {
 
                                         {/* Actions */}
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                            <button
+                                                onClick={() => {/* TODO: View invoice */ }}
+                                                className="p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                            >
                                                 <Eye size={18} />
                                             </button>
-                                            <button className="p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                            <button
+                                                onClick={() => { setSelectedInvoice(invoice); setModalOpen(true); }}
+                                                className="p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                            >
                                                 <Edit size={18} />
                                             </button>
-                                            <button className="p-2 hover:bg-red-500/20 rounded-lg text-slate-400 hover:text-red-400 transition-colors">
+                                            <button
+                                                onClick={() => {/* TODO: Delete invoice */ }}
+                                                className="p-2 hover:bg-red-500/20 rounded-lg text-slate-400 hover:text-red-400 transition-colors"
+                                            >
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
@@ -449,6 +461,14 @@ export default function Invoices() {
                     })
                 )}
             </div>
+
+            {/* Invoice Modal */}
+            <InvoiceModal
+                isOpen={modalOpen}
+                onClose={() => { setModalOpen(false); setSelectedInvoice(undefined); }}
+                invoice={selectedInvoice}
+                onSave={fetchInvoices}
+            />
         </div>
     );
 }
