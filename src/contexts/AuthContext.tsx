@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (session?.user) {
                     console.log('Loading profile for user:', session.user.email);
 
+
                     try {
                         let tenantId = null;
                         let role = null;
@@ -131,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const signOut = async () => {
         await supabase.auth.signOut();
         setProfile(null);
+        window.location.href = '/login';
     };
 
     const resetPassword = async (email: string) => {
