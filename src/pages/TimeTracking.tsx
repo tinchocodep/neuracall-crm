@@ -30,8 +30,8 @@ export default function TimeTracking() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState<TimeEntryWithProject | undefined>(undefined);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-    const timerInterval = useRef<NodeJS.Timeout | null>(null);
-    const notificationInterval = useRef<NodeJS.Timeout | null>(null);
+    const timerInterval = useRef<number | null>(null);
+    const notificationInterval = useRef<number | null>(null);
 
     useEffect(() => {
         fetchEntries();

@@ -13,7 +13,7 @@ import Tasks from './pages/Tasks';
 import TimeTracking from './pages/TimeTracking';
 import ComingSoon from './components/common/ComingSoon';
 import {
-  FileText, Clock, Wallet, Receipt, CreditCard,
+  FileText, Wallet, Receipt, CreditCard,
   Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
 } from 'lucide-react';
 
