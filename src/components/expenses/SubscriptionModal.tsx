@@ -13,10 +13,34 @@ interface SubscriptionModalProps {
 }
 
 const CATEGORIES = [
-    { value: 'ai_engine', label: 'Motor IA', icon: Zap, color: 'purple' },
-    { value: 'infrastructure', label: 'Infraestructura', icon: Server, color: 'blue' },
-    { value: 'software', label: 'Software', icon: Code, color: 'emerald' },
-    { value: 'other', label: 'Otro', icon: Package, color: 'slate' }
+    {
+        value: 'ai_engine',
+        label: 'Motor IA',
+        icon: Zap,
+        activeClasses: 'border-purple-500 bg-purple-500/10 text-purple-400',
+        inactiveClasses: 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+    },
+    {
+        value: 'infrastructure',
+        label: 'Infraestructura',
+        icon: Server,
+        activeClasses: 'border-blue-500 bg-blue-500/10 text-blue-400',
+        inactiveClasses: 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+    },
+    {
+        value: 'software',
+        label: 'Software',
+        icon: Code,
+        activeClasses: 'border-emerald-500 bg-emerald-500/10 text-emerald-400',
+        inactiveClasses: 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+    },
+    {
+        value: 'other',
+        label: 'Otro',
+        icon: Package,
+        activeClasses: 'border-slate-500 bg-slate-500/10 text-slate-400',
+        inactiveClasses: 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+    }
 ];
 
 const FREQUENCIES = [
@@ -190,8 +214,8 @@ export default function SubscriptionModal({ isOpen, onClose, subscription, onSav
                                         className={cn(
                                             "p-3 rounded-xl border-2 transition-all duration-200",
                                             formData.category === cat.value
-                                                ? `border-${cat.color}-500 bg-${cat.color}-500/10 text-${cat.color}-400`
-                                                : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600"
+                                                ? cat.activeClasses
+                                                : cat.inactiveClasses
                                         )}
                                     >
                                         <Icon size={20} className="mx-auto mb-1" />
