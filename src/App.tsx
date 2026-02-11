@@ -16,10 +16,11 @@ import Transactions from './pages/Transactions';
 import Expenses from './pages/Expenses';
 import Calendar from './pages/Calendar';
 import Ficha360 from './pages/Ficha360';
+import Settings from './pages/Settings';
 import ComingSoon from './components/common/ComingSoon';
 import {
   FileText,
-  Package, ArrowLeftRight, UserCog, UserCircle, Settings, Users
+  Package, ArrowLeftRight, UserCog
 } from 'lucide-react';
 
 
@@ -68,12 +69,12 @@ function App() {
             <Route path="/payroll" element={<ComingSoon title="Nóminas" icon={FileText} />} />
 
             {/* Configuración */}
-            <Route path="/profile" element={<ComingSoon title="Mi Perfil" icon={UserCircle} />} />
-            <Route path="/company-settings" element={<ComingSoon title="Configuración de Empresa" icon={Settings} />} />
-            <Route path="/users" element={<ComingSoon title="Gestión de Usuarios" icon={Users} />} />
+            <Route path="/profile" element={<Settings />} />
+            <Route path="/company-settings" element={<Settings />} />
+            <Route path="/users" element={<Settings />} />
 
             <Route path="/reports" element={<ComingSoon title="Reportes" />} />
-            <Route path="/settings" element={<ComingSoon title="Configuración" />} />
+            <Route path="/settings" element={<Settings />} />
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
