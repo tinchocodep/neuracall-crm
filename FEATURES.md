@@ -254,13 +254,165 @@ Ver más ejemplos en: `src/examples/ActivityLogExamples.tsx`
 
 ---
 
-## 🚀 Próximos Pasos (Fase 3)
+## ✅ Fase 3: Sistema de Chat con Discord
 
-### Sistema de Chat con Discord
-- Integración con Discord API
-- Canales de voz para el equipo
-- Chat en tiempo real
-- Notificaciones de actividades importantes
+### Funcionalidades Implementadas
+
+#### 1. **Chat Flotante Integrado**
+- Componente `DiscordChat` ubicado en `src/components/chat/DiscordChat.tsx`
+- Botón flotante en la esquina inferior derecha
+- Chat minimizable y maximizable
+- Integración completa con Discord mediante Webhooks
+
+#### 2. **Características del Chat**
+- **Envío de mensajes** en tiempo real a Discord
+- **Avatar y nombre del usuario** en cada mensaje
+- **Interfaz moderna** con diseño glassmorphism
+- **Minimizar/Maximizar** para no interrumpir el trabajo
+- **Botón de canal de voz** para unirse a llamadas de equipo
+- **Enlace directo** al canal de Discord
+
+#### 3. **Notificaciones Automáticas a Discord**
+El servicio `discordService` envía notificaciones automáticas cuando:
+- 💰 **Nueva oportunidad creada** - Con valor estimado y cliente
+- 📊 **Cambio de etapa en oportunidad** - Con etapas anterior y nueva
+- 🎉 **Nuevo cliente registrado** - Con industria y datos básicos
+- 📅 **Reunión programada** - Con fecha y cliente
+- ✅ **Tarea completada** - Con título y cliente
+
+#### 4. **Servicio de Discord**
+- Servicio `discordService` ubicado en `src/services/discord.ts`
+- Métodos disponibles:
+  - `sendMessage()` - Enviar mensaje simple
+  - `sendEmbed()` - Enviar mensaje enriquecido con formato
+  - `notifyNewOpportunity()` - Notificar nueva oportunidad
+  - `notifyOpportunityStageChange()` - Notificar cambio de etapa
+  - `notifyNewClient()` - Notificar nuevo cliente
+  - `notifyMeetingScheduled()` - Notificar reunión programada
+  - `notifyTaskCompleted()` - Notificar tarea completada
+  - `sendChatMessage()` - Enviar mensaje de chat con avatar
+  - `getVoiceChannelInvite()` - Obtener enlace al canal de voz
+  - `getTextChannelInvite()` - Obtener enlace al canal de texto
+
+### Configuración
+
+#### Variables de Entorno Requeridas:
+```bash
+VITE_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+VITE_DISCORD_BOT_TOKEN=tu_bot_token (opcional)
+VITE_DISCORD_GUILD_ID=123456789012345678
+VITE_DISCORD_CHANNEL_ID=123456789012345678
+VITE_DISCORD_VOICE_CHANNEL_ID=123456789012345678
+```
+
+#### Guía Completa de Configuración:
+Ver `DISCORD_SETUP.md` para instrucciones detalladas paso a paso sobre:
+- Crear una aplicación de Discord
+- Configurar webhooks
+- Obtener IDs necesarios
+- Configurar variables de entorno
+- Solución de problemas
+
+### Uso del Chat
+
+#### Para Usuarios:
+1. Haz clic en el botón flotante de chat (💬) en la esquina inferior derecha
+2. Escribe tu mensaje en el campo de texto
+3. Presiona Enter o haz clic en el botón de enviar
+4. El mensaje aparecerá en Discord para todo el equipo
+
+#### Unirse al Canal de Voz:
+1. Abre el chat
+2. Haz clic en el botón de teléfono (📞) en el header
+3. Se abrirá Discord con el canal de voz seleccionado
+
+### Uso de Notificaciones (Desarrolladores)
+
+#### Ejemplo: Notificar Nueva Oportunidad
+```typescript
+import { discordService } from '../services/discord';
+
+const handleCreateOpportunity = async (opportunity) => {
+    // ... crear oportunidad ...
+    
+    // Notificar a Discord
+    await discordService.notifyNewOpportunity(
+        opportunity.title,
+        client.name,
+        opportunity.value,
+        user.full_name
+    );
+};
+```
+
+#### Ejemplo: Notificar Cambio de Etapa
+```typescript
+import { discordService } from '../services/discord';
+
+const handleStageChange = async (opportunityId, newStage) => {
+    // ... actualizar etapa ...
+    
+    // Notificar a Discord
+    await discordService.notifyOpportunityStageChange(
+        opportunity.title,
+        client.name,
+        oldStage,
+        newStage,
+        user.full_name
+    );
+};
+```
+
+#### Ejemplo: Mensaje Personalizado
+```typescript
+import { discordService } from '../services/discord';
+
+await discordService.sendEmbed({
+    title: '🎯 Evento Personalizado',
+    description: 'Descripción del evento',
+    color: 0x9333EA, // Púrpura
+    fields: [
+        { name: 'Campo 1', value: 'Valor 1', inline: true },
+        { name: 'Campo 2', value: 'Valor 2', inline: true }
+    ],
+    timestamp: new Date().toISOString(),
+    footer: { text: 'Neuracall CRM' }
+});
+```
+
+### Personalización
+
+#### Colores de Notificaciones:
+Los colores se definen en formato hexadecimal:
+- Verde: `0x10B981` (éxito, nuevo cliente)
+- Azul: `0x3B82F6` (información, cambios)
+- Púrpura: `0x9333EA` (oportunidades)
+- Rojo: `0xEF4444` (alertas, errores)
+- Amarillo: `0xF59E0B` (advertencias)
+- Cyan: `0x06B6D4` (reuniones, eventos)
+
+#### Agregar Nuevos Tipos de Notificaciones:
+1. Abre `src/services/discord.ts`
+2. Agrega un nuevo método siguiendo el patrón existente
+3. Usa el método en tus componentes
+
+### Características Técnicas
+
+#### Seguridad:
+- Las credenciales de Discord se almacenan en variables de entorno
+- El archivo `.env` está en `.gitignore`
+- Los webhooks son de solo escritura (no exponen datos)
+- Los mensajes incluyen el contexto del usuario autenticado
+
+#### Rendimiento:
+- Envío asíncrono de notificaciones (no bloquea la UI)
+- Manejo de errores silencioso (no interrumpe la experiencia del usuario)
+- Logs en consola para debugging
+
+#### Integración:
+- El chat está disponible en toda la aplicación
+- Solo se muestra si Discord está configurado
+- Compatible con todos los navegadores modernos
 
 ---
 
