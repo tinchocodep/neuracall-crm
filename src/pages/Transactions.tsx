@@ -16,6 +16,7 @@ import {
     Calendar
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface UserEarning {
     id: string;
@@ -36,6 +37,7 @@ interface UserEarning {
 
 export default function Transactions() {
     const { profile } = useAuth();
+    const { canViewFinancials } = usePermissions();
     const [transactions, setTransactions] = useState<UserEarning[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -143,17 +145,25 @@ export default function Transactions() {
         return configs[status as keyof typeof configs] || configs.pending;
     };
 
-    const filteredTransactions = transactions.filter(transaction => {
-        const matchesSearch =
-            transaction.user?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            transaction.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            transaction.project?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            transaction.invoice?.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredTransactions = transactions
+        .filter(transaction => {
+            // Regular users only see their own earnings
+            if (!canViewFinancials && transaction.user_id !== profile?.id) {
+                return false;
+            }
+            return true;
+        })
+        .filter(transaction => {
+            const matchesSearch =
+                transaction.user?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                transaction.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                transaction.project?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                transaction.invoice?.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
+            const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
 
-        return matchesSearch && matchesStatus;
-    });
+            return matchesSearch && matchesStatus;
+        });
 
     const stats = {
         total: transactions.reduce((sum, t) => sum + t.amount, 0),
@@ -360,8 +370,8 @@ export default function Transactions() {
                                         </div>
                                     </div>
 
-                                    {/* Actions */}
-                                    {transaction.status === 'pending' && (
+                                    {/* Actions - Only for admins/supervisors */}
+                                    {canViewFinancials && transaction.status === 'pending' && (
                                         <div className="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
                                             <button
                                                 onClick={() => updateTransactionStatus(transaction.id, 'approved')}
@@ -380,7 +390,8 @@ export default function Transactions() {
                                         </div>
                                     )}
 
-                                    {transaction.status === 'approved' && (
+                                    {/* Actions - Only for admins/supervisors */}
+                                    {canViewFinancials && transaction.status === 'approved' && (
                                         <div className="mt-4 pt-4 border-t border-slate-700/50">
                                             <button
                                                 onClick={() => updateTransactionStatus(transaction.id, 'paid')}

@@ -22,6 +22,7 @@ import {
     PieChart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Subscription, Expense, ExpenseAllocation } from '../types/crm';
 import SubscriptionModal from '../components/expenses/SubscriptionModal';
 import AllocationModal from '../components/expenses/AllocationModal';
@@ -42,6 +43,7 @@ interface ProjectCostSummary {
 
 export default function Expenses() {
     const { profile } = useAuth();
+    const { canViewExpenses } = usePermissions();
     const [subscriptions, setSubscriptions] = useState<SubscriptionWithAllocations[]>([]);
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [projectSummaries, setProjectSummaries] = useState<ProjectCostSummary[]>([]);
@@ -258,6 +260,24 @@ export default function Expenses() {
         sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sub.provider?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Access denied for regular users
+    if (!canViewExpenses) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center space-y-4 max-w-md">
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+                        <Eye className="text-red-400" size={40} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Acceso Denegado</h2>
+                    <p className="text-slate-400">
+                        No tienes permisos para ver información de gastos y suscripciones.
+                        Contacta a un administrador si necesitas acceso.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-0">
