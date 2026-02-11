@@ -22,6 +22,7 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
 import { usePermissions } from '../hooks/usePermissions';
+import UpcomingEventsWidget from '../components/dashboard/UpcomingEventsWidget';
 
 const stats = [
     {
@@ -377,6 +378,16 @@ export function Dashboard() {
                         <button className="w-full mt-6 py-3 rounded-xl border border-slate-700/50 text-sm font-medium hover:bg-slate-800 transition-colors text-slate-400 hover:text-white">
                             Ver toda la actividad
                         </button>
+                    </motion.div>
+
+                    {/* Upcoming Events Widget */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        className="md:col-span-2"
+                    >
+                        <UpcomingEventsWidget />
                     </motion.div>
                 </div>
             </div>
