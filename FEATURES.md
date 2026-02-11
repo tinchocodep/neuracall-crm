@@ -416,6 +416,148 @@ Los colores se definen en formato hexadecimal:
 
 ---
 
+## ✅ Fase 4: Integración de Activity Logging en Módulos Core
+
+### Objetivo
+Integrar el sistema de registro de actividades (`useActivityLog`) y las notificaciones de Discord en los modales principales del CRM para automatizar el seguimiento de acciones importantes.
+
+### Módulos Integrados
+
+#### 1. **ClientModal** - Gestión de Clientes
+**Ubicación:** `src/components/clients/ClientModal.tsx`
+
+**Actividades Registradas:**
+- `client_created` - Al crear un nuevo cliente
+- `client_updated` - Al actualizar datos de un cliente
+
+**Notificaciones Discord:**
+- 🟢 **Nuevo Cliente** - Incluye nombre, industria y usuario creador
+
+**Metadata Guardada:**
+```typescript
+{
+    company_name: string | null,
+    industry: string | null,
+    source: string | null,
+    converted_from_prospect: boolean
+}
+```
+
+#### 2. **OpportunityModal** - Gestión de Oportunidades
+**Ubicación:** `src/components/opportunities/OpportunityModal.tsx`
+
+**Actividades Registradas:**
+- `opportunity_created` - Al crear una nueva oportunidad
+- `opportunity_updated` - Al actualizar una oportunidad
+- `opportunity_stage_changed` - Al cambiar la etapa de una oportunidad
+
+**Notificaciones Discord:**
+- 🟣 **Nueva Oportunidad** - Incluye título, cliente, valor y usuario
+- 🔵 **Cambio de Etapa** - Incluye etapa anterior, nueva etapa y detalles
+
+**Metadata Guardada:**
+```typescript
+{
+    value: number,
+    status: string,
+    probability: number,
+    expected_close_date: string | null,
+    old_stage?: string,  // Solo en cambio de etapa
+    new_stage?: string   // Solo en cambio de etapa
+}
+```
+
+#### 3. **TaskModal** - Gestión de Tareas
+**Ubicación:** `src/components/tasks/TaskModal.tsx`
+
+**Actividades Registradas:**
+- `task_created` - Al crear una nueva tarea
+- `task_completed` - Al completar una tarea
+- `other` - Al actualizar una tarea (sin completar)
+
+**Notificaciones Discord:**
+- ✅ **Tarea Completada** - Incluye título, cliente y usuario
+
+**Metadata Guardada:**
+```typescript
+{
+    status: string,
+    priority: string,
+    due_date: string | null,
+    assigned_to?: string  // Solo en creación
+}
+```
+
+#### 4. **EventModal** - Gestión de Reuniones
+**Ubicación:** `src/components/calendar/EventModal.tsx`
+
+**Actividades Registradas:**
+- `meeting_scheduled` - Al programar una reunión
+- `meeting_completed` - Al completar una reunión
+
+**Notificaciones Discord:**
+- 📅 **Reunión Programada** - Incluye título, cliente, fecha/hora y usuario
+
+**Metadata Guardada:**
+```typescript
+{
+    event_type: string,
+    start_date: string,
+    location: string | null,
+    attendees: string[]
+}
+```
+
+### Características de la Integración
+
+#### Registro Automático
+- Todas las acciones se registran automáticamente sin intervención del usuario
+- El sistema captura el contexto completo (usuario, cliente, timestamp)
+- La metadata se guarda en formato JSON para análisis futuro
+
+#### Notificaciones Inteligentes
+- Solo se envían notificaciones para eventos importantes
+- Las notificaciones incluyen toda la información relevante
+- Formato enriquecido con colores y emojis distintivos
+- Timestamp automático en cada notificación
+
+#### Visualización en Timeline
+- Todas las actividades aparecen en la Ficha 360 del cliente
+- Iconos y colores distintivos por tipo de actividad
+- Timestamps relativos (hace X minutos/horas/días)
+- Metadata expandible para ver detalles completos
+
+### Beneficios
+
+1. **Trazabilidad Completa**
+   - Historial completo de todas las acciones realizadas
+   - Identificación clara de quién hizo qué y cuándo
+   - Metadata enriquecida para análisis
+
+2. **Comunicación en Tiempo Real**
+   - El equipo se mantiene informado vía Discord
+   - Notificaciones instantáneas de eventos importantes
+   - Contexto completo en cada notificación
+
+3. **Mejora en la Colaboración**
+   - Visibilidad compartida de actividades
+   - Reducción de duplicación de esfuerzos
+   - Mejor coordinación del equipo
+
+4. **Análisis y Reportes**
+   - Datos estructurados para generar reportes
+   - Identificación de patrones y tendencias
+   - Base para métricas de rendimiento
+
+### Documentación Adicional
+
+Para más detalles sobre la integración, consulta:
+- **Resumen Completo**: `INTEGRATION_SUMMARY.md`
+- **Configuración de Discord**: `DISCORD_SETUP.md`
+- **Ejemplos de Uso**: `src/examples/ActivityLogExamples.tsx`
+
+---
+
 ## 📝 Notas Técnicas
 
 ### Seguridad
