@@ -20,6 +20,7 @@ import {
     FolderKanban
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Invoice } from '../types/crm';
 import InvoiceModal from '../components/invoices/InvoiceModal';
 import PaymentModal from '../components/invoices/PaymentModal';
@@ -32,6 +33,7 @@ interface InvoiceWithRelations extends Invoice {
 
 export default function Invoices() {
     const { profile } = useAuth();
+    const { canViewFinancials } = usePermissions();
     const [invoices, setInvoices] = useState<InvoiceWithRelations[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -178,6 +180,24 @@ export default function Invoices() {
         pending: invoices.reduce((sum, inv) => sum + inv.pending_amount, 0),
         count: invoices.length
     };
+
+    // Access denied for regular users
+    if (!canViewFinancials) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center space-y-4 max-w-md">
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+                        <FileText className="text-red-400" size={40} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Acceso Denegado</h2>
+                    <p className="text-slate-400">
+                        No tienes permisos para ver información de facturación.
+                        Contacta a un administrador si necesitas acceso.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-0">
