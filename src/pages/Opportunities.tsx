@@ -54,7 +54,7 @@ export default function Opportunities() {
 
         // Update opportunity status
         const opportunityId = draggableId;
-        const newStatus = destination.droppableId;
+        const newStatus = destination.droppableId as Opportunity['status'];
 
         try {
             const { error } = await supabase
@@ -115,26 +115,24 @@ export default function Opportunities() {
                     <div className="flex gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1">
                         <button
                             onClick={() => setViewFilter('all')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                viewFilter === 'all'
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewFilter === 'all'
                                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                                     : 'text-slate-400 hover:text-white'
-                            }`}
+                                }`}
                         >
                             Todos
                         </button>
                         <button
                             onClick={() => setViewFilter('new')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                viewFilter === 'new'
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewFilter === 'new'
                                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                                     : 'text-slate-400 hover:text-white'
-                            }`}
+                                }`}
                         >
                             Solo Prospectos
                         </button>
                     </div>
-                    
+
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
                         <input
@@ -188,9 +186,8 @@ export default function Opportunities() {
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className={`space-y-3 min-h-[200px] p-2 rounded-xl transition-colors ${
-                                                    snapshot.isDraggingOver ? 'bg-slate-800/50' : ''
-                                                }`}
+                                                className={`space-y-3 min-h-[200px] p-2 rounded-xl transition-colors ${snapshot.isDraggingOver ? 'bg-slate-800/50' : ''
+                                                    }`}
                                             >
                                                 {columnOpps.map((opp, index) => (
                                                     <Draggable key={opp.id} draggableId={opp.id} index={index}>
@@ -200,9 +197,8 @@ export default function Opportunities() {
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
                                                                 onClick={() => handleEdit(opp)}
-                                                                className={`bg-slate-900 border border-slate-800 rounded-xl p-4 cursor-pointer hover:border-blue-500/50 transition-all ${
-                                                                    snapshot.isDragging ? 'shadow-2xl shadow-blue-500/20 scale-105' : ''
-                                                                }`}
+                                                                className={`bg-slate-900 border border-slate-800 rounded-xl p-4 cursor-pointer hover:border-blue-500/50 transition-all ${snapshot.isDragging ? 'shadow-2xl shadow-blue-500/20 scale-105' : ''
+                                                                    }`}
                                                             >
                                                                 <h4 className="font-medium text-white mb-2 line-clamp-2">
                                                                     {opp.title}
