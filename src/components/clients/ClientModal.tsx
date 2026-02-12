@@ -87,9 +87,13 @@ export default function ClientModal({ isOpen, onClose, onSuccess, client, conver
         setError(null);
 
         try {
+            // Cofounders usan el tenant compartido "Neuracall"
+            const SHARED_TENANT_ID = '3c61110d-a0a9-4f5b-a0e3-62bb99273963';
+            const tenantIdToUse = profile?.role === 'cofounder' ? SHARED_TENANT_ID : profile?.tenant_id;
+
             const dataToSave = {
                 ...formData,
-                tenant_id: profile?.tenant_id,
+                tenant_id: tenantIdToUse,
                 created_by: profile?.id,
             };
 
