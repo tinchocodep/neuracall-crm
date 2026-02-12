@@ -22,6 +22,7 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
 import { usePermissions } from '../hooks/usePermissions';
+import { useAuth } from '../contexts/AuthContext';
 import UpcomingEventsWidget from '../components/dashboard/UpcomingEventsWidget';
 
 const stats = [
@@ -139,7 +140,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function Dashboard() {
     const { canViewFinancials, isFounder } = usePermissions();
+    const { profile } = useAuth();
     const [showFinancials, setShowFinancials] = useState(true);
+
+    // Extract first name from tenant_name (para saludo personalizado)
+    // Esto permite que cada cofounder vea su propio nombre aunque compartan datos
+    const userName = profile?.tenant_name?.split(' ')[0] || profile?.full_name?.split(' ')[0] || 'Usuario';
 
     // Filter stats based on permissions and showFinancials toggle
     const visibleStats = stats.filter(stat => {
@@ -181,7 +187,7 @@ export function Dashboard() {
                             <h2 className="text-blue-400 font-medium tracking-wide text-sm uppercase">AI-Powered Dashboard</h2>
                         </div>
                         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                            Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Martin</span>
+                            Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{userName}</span>
                         </h1>
                         <p className="text-slate-400 mt-2 text-lg max-w-xl">
                             Gestiona tus proyectos de IA, clientes y operaciones desde un solo lugar.
