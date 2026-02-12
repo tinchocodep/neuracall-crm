@@ -43,7 +43,8 @@ export default function Contacts() {
                 `)
                 .order('created_at', { ascending: false });
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 

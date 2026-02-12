@@ -48,7 +48,8 @@ export default function Tasks() {
                 `)
                 .order('created_at', { ascending: false });
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
@@ -201,8 +202,8 @@ export default function Tasks() {
                     <button
                         onClick={() => setFilterStatus('all')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${filterStatus === 'all'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Todas ({tasks.length})
@@ -210,8 +211,8 @@ export default function Tasks() {
                     <button
                         onClick={() => setFilterStatus('todo')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${filterStatus === 'todo'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Por Hacer ({todoCount})
@@ -219,8 +220,8 @@ export default function Tasks() {
                     <button
                         onClick={() => setFilterStatus('in_progress')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${filterStatus === 'in_progress'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         En Progreso ({inProgressCount})
@@ -228,8 +229,8 @@ export default function Tasks() {
                     <button
                         onClick={() => setFilterStatus('done')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${filterStatus === 'done'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Completadas ({doneCount})
@@ -242,8 +243,8 @@ export default function Tasks() {
                         <button
                             onClick={() => setFilterPriority('all')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterPriority === 'all'
-                                    ? 'bg-slate-700 text-white'
-                                    : 'text-slate-400 hover:text-white'
+                                ? 'bg-slate-700 text-white'
+                                : 'text-slate-400 hover:text-white'
                                 }`}
                         >
                             Todas
@@ -251,8 +252,8 @@ export default function Tasks() {
                         <button
                             onClick={() => setFilterPriority('critical')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterPriority === 'critical'
-                                    ? 'bg-red-600 text-white'
-                                    : 'text-slate-400 hover:text-white'
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:text-white'
                                 }`}
                         >
                             Crítica
@@ -260,8 +261,8 @@ export default function Tasks() {
                         <button
                             onClick={() => setFilterPriority('high')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterPriority === 'high'
-                                    ? 'bg-orange-600 text-white'
-                                    : 'text-slate-400 hover:text-white'
+                                ? 'bg-orange-600 text-white'
+                                : 'text-slate-400 hover:text-white'
                                 }`}
                         >
                             Alta
@@ -269,8 +270,8 @@ export default function Tasks() {
                         <button
                             onClick={() => setFilterPriority('medium')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterPriority === 'medium'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-slate-400 hover:text-white'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-slate-400 hover:text-white'
                                 }`}
                         >
                             Media
@@ -278,8 +279,8 @@ export default function Tasks() {
                         <button
                             onClick={() => setFilterPriority('low')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterPriority === 'low'
-                                    ? 'bg-slate-600 text-white'
-                                    : 'text-slate-400 hover:text-white'
+                                ? 'bg-slate-600 text-white'
+                                : 'text-slate-400 hover:text-white'
                                 }`}
                         >
                             Baja

@@ -48,7 +48,8 @@ export default function Projects() {
                 `)
                 .order('created_at', { ascending: false });
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
@@ -157,8 +158,8 @@ export default function Projects() {
                     <button
                         onClick={() => setFilterStatus('all')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'all'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Todos ({projects.length})
@@ -166,8 +167,8 @@ export default function Projects() {
                     <button
                         onClick={() => setFilterStatus('active')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'active'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Activos ({activeCount})
@@ -175,8 +176,8 @@ export default function Projects() {
                     <button
                         onClick={() => setFilterStatus('completed')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === 'completed'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-slate-400 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         Finalizados ({completedCount})
