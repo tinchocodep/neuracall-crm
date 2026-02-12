@@ -77,10 +77,14 @@ export default function Calendar() {
             let query = supabase
                 .from('calendar_events')
                 .select('*')
-                .eq('tenant_id', profile.tenant_id)
                 .gte('start_date', monthStart.toISOString())
                 .lte('start_date', monthEnd.toISOString())
                 .order('start_date', { ascending: true });
+
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                query = query.eq('tenant_id', profile.tenant_id);
+            }
 
             // Filter by user based on view mode
             if (viewMode === 'mine') {
@@ -102,11 +106,17 @@ export default function Calendar() {
         if (!profile) return;
 
         try {
-            const { data, error } = await supabase
+            let usersQuery = supabase
                 .from('usuarios')
                 .select('id, nombre, email')
-                .eq('tenant_id', profile.tenant_id)
                 .order('nombre');
+
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                usersQuery = usersQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data, error } = await usersQuery;
 
             if (error) throw error;
 

@@ -94,7 +94,8 @@ export default function TimeTracking() {
                 .in('status', ['onboarding', 'development', 'testing', 'deployment', 'maintenance'])
                 .order('name');
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
@@ -115,7 +116,8 @@ export default function TimeTracking() {
                 .order('start_time', { ascending: false })
                 .limit(50);
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
