@@ -57,11 +57,17 @@ export default function TaskManager() {
     }, [selectedBoard]);
 
     const fetchBoards = async () => {
-        const { data, error } = await supabase
+        let query = supabase
             .from('boards')
             .select('*')
-            .eq('tenant_id', profile?.tenant_id)
             .order('created_at', { ascending: false });
+
+        // Solo filtrar por tenant_id si NO es cofounder
+        if (profile?.tenant_id && profile?.role !== 'cofounder') {
+            query = query.eq('tenant_id', profile.tenant_id);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error('Error fetching boards:', error);
