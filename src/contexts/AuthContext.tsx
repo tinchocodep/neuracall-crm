@@ -33,10 +33,111 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
     useEffect(() => {
-        console.log('AuthContext mounted - skipping auto session load');
-        // NO intentar cargar la sesión automáticamente porque se cuelga
-        // La sesión se cargará cuando el usuario haga login
-        setLoading(false);
+        console.log('AuthContext mounted - loading session');
+
+        // Función helper para cargar el perfil
+        const loadProfile = async (session: Session) => {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Profile load timeout')), 3000)
+                );
+
+                const loadProfilePromise = (async () => {
+                    let tenantId = null;
+                    let role = null;
+                    let tenantName = null;
+                    let avatarUrl = null;
+
+                    // Cargar avatar
+                    try {
+                        const { data: userData } = await supabase
+                            .from('users')
+                            .select('avatar_url')
+                            .eq('id', session.user.id)
+                            .maybeSingle();
+
+                        if (userData) {
+                            avatarUrl = userData.avatar_url;
+                        }
+                    } catch (err) {
+                        console.error('Error fetching user data:', err);
+                    }
+
+                    // Cargar tenant_user
+                    try {
+                        const { data: tenantUserData, error: tenantError } = await supabase
+                            .from('tenant_users')
+                            .select('*')
+                            .eq('user_id', session.user.id)
+                            .maybeSingle();
+
+                        if (!tenantError && tenantUserData) {
+                            tenantId = tenantUserData.tenant_id;
+                            role = tenantUserData.role;
+                            console.log('Tenant user data loaded:', { tenantId, role });
+                        }
+                    } catch (err) {
+                        console.error('Error fetching tenant_user:', err);
+                    }
+
+                    // Cargar tenant name
+                    if (tenantId) {
+                        try {
+                            const { data: tenantData } = await supabase
+                                .from('tenants')
+                                .select('name')
+                                .eq('id', tenantId)
+                                .maybeSingle();
+                            tenantName = tenantData?.name;
+                            console.log('Tenant name loaded:', tenantName);
+                        } catch (err) {
+                            console.error('Error fetching tenant:', err);
+                        }
+                    }
+
+                    return {
+                        id: session.user.id,
+                        email: session.user.email || '',
+                        full_name: session.user.user_metadata?.full_name || '',
+                        avatar_url: avatarUrl,
+                        tenant_id: tenantId,
+                        tenant_name: tenantName || null,
+                        role: role,
+                    };
+                })();
+
+                const profile = await Promise.race([loadProfilePromise, timeoutPromise]) as UserProfile;
+                console.log('Profile loaded successfully:', profile);
+                return profile;
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // Fallback profile
+                return {
+                    id: session.user.id,
+                    email: session.user.email || '',
+                    full_name: session.user.user_metadata?.full_name || '',
+                    avatar_url: null,
+                    tenant_id: null,
+                    tenant_name: null,
+                    role: null,
+                };
+            }
+        };
+
+        // Cargar sesión existente al montar
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+            console.log('Initial session check:', session ? 'Session found' : 'No session');
+            setSession(session);
+            setUser(session?.user ?? null);
+
+            if (session?.user) {
+                const profile = await loadProfile(session);
+                setProfile(profile);
+            } else {
+                setProfile(null);
+            }
+            setLoading(false);
+        });
 
         // Escuchar cambios de autenticación
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -47,99 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 if (session?.user) {
                     console.log('Loading profile for user:', session.user.email);
-
-                    try {
-                        // Set a timeout to prevent hanging
-                        const timeoutPromise = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('Profile load timeout')), 5000)
-                        );
-
-                        const loadProfilePromise = (async () => {
-                            let tenantId = null;
-                            let role = null;
-                            let tenantName = null;
-                            let avatarUrl = null;
-
-                            // Intentar obtener datos del usuario (avatar)
-                            try {
-                                const { data: userData } = await supabase
-                                    .from('users')
-                                    .select('avatar_url')
-                                    .eq('id', session.user.id)
-                                    .maybeSingle();
-
-                                if (userData) {
-                                    avatarUrl = userData.avatar_url;
-                                }
-                            } catch (err) {
-                                console.error('Error fetching user data:', err);
-                            }
-
-                            // Intentar obtener tenant_user con timeout
-                            try {
-                                const { data: tenantUserData, error: tenantError } = await supabase
-                                    .from('tenant_users')
-                                    .select('*')
-                                    .eq('user_id', session.user.id)
-                                    .maybeSingle();
-
-                                if (!tenantError && tenantUserData) {
-                                    tenantId = tenantUserData.tenant_id;
-                                    role = tenantUserData.role;
-                                    console.log('Tenant user data loaded:', { tenantId, role });
-                                } else {
-                                    console.warn('No tenant_user found or error:', tenantError);
-                                }
-                            } catch (err) {
-                                console.error('Error fetching tenant_user:', err);
-                            }
-
-                            // Intentar obtener tenant name
-                            if (tenantId) {
-                                try {
-                                    const { data: tenantData } = await supabase
-                                        .from('tenants')
-                                        .select('name')
-                                        .eq('id', tenantId)
-                                        .maybeSingle();
-                                    tenantName = tenantData?.name;
-                                    console.log('Tenant name loaded:', tenantName);
-                                } catch (err) {
-                                    console.error('Error fetching tenant:', err);
-                                }
-                            }
-
-                            return {
-                                id: session.user.id,
-                                email: session.user.email || '',
-                                full_name: session.user.user_metadata?.full_name || '',
-                                avatar_url: avatarUrl,
-                                tenant_id: tenantId,
-                                tenant_name: tenantName || null,
-                                role: role,
-                            };
-                        })();
-
-                        // Race between loading and timeout
-                        const profile = await Promise.race([loadProfilePromise, timeoutPromise]) as UserProfile;
-
-                        console.log('Final profile loaded:', profile);
-                        setProfile(profile);
-                    } catch (error) {
-                        console.error('Error loading profile (using fallback):', error);
-                        // Fallback: perfil básico con datos del auth
-                        const fallbackProfile = {
-                            id: session.user.id,
-                            email: session.user.email || '',
-                            full_name: session.user.user_metadata?.full_name || '',
-                            avatar_url: null,
-                            tenant_id: null,
-                            tenant_name: null,
-                            role: null,
-                        };
-                        console.log('Using fallback profile:', fallbackProfile);
-                        setProfile(fallbackProfile);
-                    }
+                    const profile = await loadProfile(session);
+                    setProfile(profile);
                 } else {
                     setProfile(null);
                 }
