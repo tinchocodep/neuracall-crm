@@ -102,58 +102,79 @@ export default function Ficha360() {
             setLoading(true);
 
             // Fetch client
-            const { data: clientData, error: clientError } = await supabase
+            let clientQuery = supabase
                 .from('clients')
                 .select('*')
-                .eq('id', id)
-                .eq('tenant_id', profile.tenant_id)
-                .single();
+                .eq('id', id);
+
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                clientQuery = clientQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data: clientData, error: clientError } = await clientQuery.single();
 
             if (clientError) throw clientError;
             setClient(clientData);
 
             // Fetch projects
-            const { data: projectsData } = await supabase
+            let projectsQuery = supabase
                 .from('projects')
                 .select('*')
                 .eq('client_id', id)
-                .eq('tenant_id', profile.tenant_id)
                 .order('created_at', { ascending: false });
 
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                projectsQuery = projectsQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data: projectsData } = await projectsQuery;
             setProjects(projectsData || []);
 
             // Fetch opportunities
-            const { data: opportunitiesData } = await supabase
+            let opportunitiesQuery = supabase
                 .from('opportunities')
                 .select('*')
                 .eq('client_id', id)
-                .eq('tenant_id', profile.tenant_id)
                 .order('created_at', { ascending: false });
 
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                opportunitiesQuery = opportunitiesQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data: opportunitiesData } = await opportunitiesQuery;
             setOpportunities(opportunitiesData || []);
 
             // Fetch calendar events
-            const { data: eventsData } = await supabase
+            let eventsQuery = supabase
                 .from('calendar_events')
                 .select('*')
                 .eq('client_id', id)
-                .eq('tenant_id', profile.tenant_id)
                 .order('start_date', { ascending: false })
                 .limit(10);
 
+            if (profile.tenant_id && profile.role !== 'cofounder') {
+                eventsQuery = eventsQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data: eventsData } = await eventsQuery;
             setEvents(eventsData || []);
 
             // Fetch time entries from projects
             if (projectsData && projectsData.length > 0) {
                 const projectIds = projectsData.map((p: Project) => p.id);
-                const { data: timeData } = await supabase
+                let timeQuery = supabase
                     .from('time_entries')
                     .select('*')
                     .in('project_id', projectIds)
-                    .eq('tenant_id', profile.tenant_id)
                     .order('start_time', { ascending: false })
                     .limit(20);
 
+                if (profile.tenant_id && profile.role !== 'cofounder') {
+                    timeQuery = timeQuery.eq('tenant_id', profile.tenant_id);
+                }
+
+                const { data: timeData } = await timeQuery;
                 setTimeEntries(timeData || []);
             }
 
