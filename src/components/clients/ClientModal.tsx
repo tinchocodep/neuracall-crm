@@ -91,8 +91,12 @@ export default function ClientModal({ isOpen, onClose, onSuccess, client, conver
             const SHARED_TENANT_ID = '3c61110d-a0a9-4f5b-a0e3-62bb99273963';
             const tenantIdToUse = profile?.role === 'cofounder' ? SHARED_TENANT_ID : profile?.tenant_id;
 
+            // Convertir campos vacíos a null para evitar errores de constraint
             const dataToSave = {
                 ...formData,
+                company_size: formData.company_size || null,
+                industry: formData.industry || null,
+                source: formData.source || null,
                 tenant_id: tenantIdToUse,
                 created_by: profile?.id,
             };
