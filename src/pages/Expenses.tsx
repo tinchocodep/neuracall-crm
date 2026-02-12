@@ -83,7 +83,8 @@ export default function Expenses() {
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
@@ -122,7 +123,8 @@ export default function Expenses() {
                 .select('*')
                 .order('expense_date', { ascending: false });
 
-            if (profile?.tenant_id) {
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
                 query = query.eq('tenant_id', profile.tenant_id);
             }
 
@@ -137,11 +139,16 @@ export default function Expenses() {
 
     const fetchProjectSummaries = async () => {
         try {
-            // Fetch all projects
-            const { data: projects } = await supabase
+            let projectsQuery = supabase
                 .from('projects')
-                .select('id, name')
-                .eq('tenant_id', profile?.tenant_id);
+                .select('id, name');
+
+            // Solo filtrar por tenant_id si NO es cofounder
+            if (profile?.tenant_id && profile?.role !== 'cofounder') {
+                projectsQuery = projectsQuery.eq('tenant_id', profile.tenant_id);
+            }
+
+            const { data: projects } = await projectsQuery;
 
             if (!projects) return;
 
